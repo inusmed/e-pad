@@ -1,0 +1,229 @@
+.image-circle{
+	object-fit: cover;
+	margin: -4px 8px 0 0;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+.transformScale10 {
+	-ms-transform: scale(0.1, 0.1); /* IE 9 */
+    -webkit-transform: scale(0.1, 0.1); /* Safari */
+    transform: scale(0.1, 0.1);
+}
+
+.transformScale20 {
+	-ms-transform: scale(0.2, 0.2); /* IE 9 */
+    -webkit-transform: scale(0.2, 0.2); /* Safari */
+    transform: scale(0.2, 0.2);
+}
+
+.transformScale30 {
+	-ms-transform: scale(0.3, 0.3); /* IE 9 */
+    -webkit-transform: scale(0.3, 0.3); /* Safari */
+    transform: scale(0.3, 0.3);
+}
+
+.transformScale40 {
+	-ms-transform: scale(0.4, 0.4); /* IE 9 */
+    -webkit-transform: scale(0.4, 0.4); /* Safari */
+    transform: scale(0.4, 0.4);
+}
+
+.transformScale50 {
+	-ms-transform: scale(0.5, 0.5); /* IE 9 */
+    -webkit-transform: scale(0.5, 0.5); /* Safari */
+    transform: scale(0.5, 0.5);
+}
+
+.transformScale60 {
+	-ms-transform: scale(0.6, 0.6); /* IE 9 */
+    -webkit-transform: scale(0.6, 0.6); /* Safari */
+    transform: scale(0.6, 0.6);
+}
+
+.transformScale70 {
+	-ms-transform: scale(0.7, 0.7); /* IE 9 */
+    -webkit-transform: scale(0.7, 0.7); /* Safari */
+    transform: scale(0.7, 0.7);
+}
+
+.transformScale80 {
+	-ms-transform: scale(0.8, 0.8); /* IE 9 */
+    -webkit-transform: scale(0.8, 0.8); /* Safari */
+    transform: scale(0.8, 0.8);
+}
+
+.transformScale90 {
+	-ms-transform: scale(0.9, 0.9); /* IE 9 */
+    -webkit-transform: scale(0.9, 0.9); /* Safari */
+    transform: scale(0.9, 0.9);
+}
+
+.underlineCustom{
+	padding-bottom: 4px;
+    border-bottom: 1px solid #CCC;
+}
+
+.justmobile{
+	display: none;
+}
+
+.marginTop1vw{
+    margin-top: 1vw;
+}
+
+.infoSatuan{
+    float: right;
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+}
+
+.displayFlex{
+        /*width: 100%;*/
+        display: flex;
+    }
+
+.displayFlex div{
+        /*width: 100%;*/
+        flex: 1;
+    }
+
+.fixWidthDiv{
+        width: 100% !important;
+        display: flex;
+    }
+
+.fixWidthDiv div{
+        width: 100% !important;
+        flex: 1;
+    }
+
+.fixWidth{
+        width: 100%;
+    }
+
+    
+
+.floatRight{
+    float: right;
+}
+
+
+@media screen and (max-width: 480px) {
+   .table-strecth-480{
+        width: 100%;
+        padding: 0 auto;
+    }
+}
+
+
+
+@media screen and (max-width: 480px) {
+   .justmobile{
+   		display: unset;
+	}
+}
+
+@media screen and (min-width: 700px) {
+   .parentZona{
+        display: flex;
+    }
+
+    .childZona{
+        flex: 1;
+    }
+}
+
+@media screen and (max-width: 700px) and (orientation:landscape) {
+
+    .justmobile{
+        display: unset;
+    }
+}
+
+.dropDownInfo{
+    padding: 1vw;
+    position: initial;
+}
+
+.image-cropper {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.image-cropper img {
+    display: inline;
+    margin: 0 auto;
+    height: 140%;
+    width: auto;
+}
+
+.marginAva{
+    margin-top: 0.2vw;
+    margin-right: 0.3vw;
+}
+
+.cssAva{
+    margin: -4px 8px 0 0;
+    border-radius: 100%;
+    border: 2px solid #FFF;
+    width: 40px;
+    height: 40px;
+}
+
+.cssAva img{
+    vertical-align: baseline;
+}
+
+.marginChart{
+    margin-top: -5vh;
+}
+
+.thTable{
+    background-color: #307ecc;
+    color: white;
+}
+
+.upperCase{
+    font-variant: all-small-caps;
+}
+
+.dataTables_wrapper .dataTables_info {
+    clear:none;
+    margin-left:10px;
+    padding-top:0;
+}
+
+.no-skin .nav-list > li .submenu > li.active > a, .no-skin .nav-list > li.active > a{
+    background-color: #579ec8 !important; /*biru muda*/
+    color: #fff !important;
+}
+
+.no-skin .nav-list > li:hover:not(.open) > a{
+    background-color: #1345ab; /*biru tua*/
+    color: #fff;
+}
+
+.no-skin .nav-list > li:hover > a > i.menu-icon, 
+.no-skin .nav-list > li.active > a > i.menu-icon, 
+.no-skin .nav-list > li.open > a.dropdown-toggle > i.menu-icon, 
+.no-skin .nav-list > li.open > a,
+.no-skin .nav-list > li.open:hover > a{
+    color: #FF892A;
+}
+
+.notif-info {
+	max-width: 180px;
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	text-align: left;
+	vertical-align: top;
+	line-height: 15px;
+	position: relative;
+	top: 6px;
+}
