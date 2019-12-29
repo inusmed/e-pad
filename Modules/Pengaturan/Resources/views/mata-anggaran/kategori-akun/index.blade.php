@@ -183,7 +183,7 @@
 									</div>
                                 </div>
                                 <input type="hidden" id="data-uuid" value="">
-                                <input type="hidden" id="data-group" value="">
+                                <input type="hidden" id="data-grup" value="">
                                 <input type="hidden" id="data-company" value="">
                             </div>
                         </div>

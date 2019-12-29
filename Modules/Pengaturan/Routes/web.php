@@ -14,6 +14,7 @@
 Route::group(['middleware' => 'language'], function () {
     Route::group(['middleware' => 'auth'], function () {
         Route::group(['prefix' => 'pengaturan'], function () {
+
             Route::group(['namespace' => 'MataAnggaran'], function () {
                 Route::get('mata-anggaran/grup-akun', 'Grup@index');
 

@@ -193,7 +193,7 @@
                                         <h4><small>: <span id="txtCreatedAt"></span></small></h4>
 									</div>
                                 </div>
-                                <input type="hidden" id="data-id" value="">
+                                <input type="hidden" id="data-uuid" value="">
                                 <input type="hidden" id="data-grup" value="">
                                 <input type="hidden" id="data-kategori" value="">
                                 <input type="hidden" id="data-company" value="">

@@ -9,7 +9,7 @@ var subkategori = function () {
             subkategori.request();
 
             $('#btn-edit').click(function() {
-                var dataid    = $('#data-id').val();
+                var dataid    = $('#data-uuid').val();
                 var companyid = $('#data-company').val();
                 var kategorid = $('#data-kategori').val();
                 var grupid    = $('#data-grup').val();
@@ -19,10 +19,34 @@ var subkategori = function () {
 
             $('#btn-delete').click(function() {
                 $('#modalView').modal('hide');
+
+                $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                    $('#captImg img').attr('src', data);
+                });
+
                 bootbox.confirm({
                     message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penghapusan Data </h4><hr>\
                         <h5>Apakah anda yakin ingin menghapus data tersebut?</h5>\
                         Penghapusan akun rekening ini akan menghapus turunan rekening dari rekening utama yang anda hapus\
+                        <br><br>\
+                        <div class='form-login'>\
+                            <div class='form-group' id='form-captcha'>\
+                                <div style='display: flex'>\
+                                    <div style='flex: 3;'>\
+                                        <input type='text' class='form-control' name='captcha' id='captcha' placeholder='Captcha' value='' maxlength='6' autocomplete='off'>\
+                                        <span class='text-danger'>masukkan captha untuk konfirmasi</span>\
+                                    </div>\
+                                    <div style='flex: 1;'>\
+                                        <a href='javascript:void(0);' class='refreshCaptcha'>\
+                                            <img src='"+baseUrl+'/assets/images/icons/refresh.png'+"' style='padding:5px 0 0 5px' alt='load'>\
+                                        </a>\
+                                    </div>\
+                                    <div style='flex: 1;'>\
+                                        <p id='captImg'><img></p>\
+                                    </div>\
+                                </div>\
+                            </div>\
+                        </div>\
                     </div>",
                     buttons: {
                         confirm: {
@@ -35,63 +59,111 @@ var subkategori = function () {
                         }
                     },
                     callback: function(isConfirm) {
-                        if(isConfirm)
-                        {
-                            var dataid    = $('#data-id').val();
-                            var companyid = $('#data-company').val();
-                            var kategoriid= $('#data-kategori').val();
-                            var grupid    = $('#data-grup').val();
-                            
-                            $.ajax({
-                                type: 'DELETE',
-                                url: baseApiUrl + '/pengaturan/mata-anggaran/subkategori',
-                                dataType: 'json',
-                                data : {
-                                    'company_id' : companyid,
-                                    'grup_id'    : grupid,
-                                    'kategori_id': kategoriid,
-                                    'kodeAkun'   : dataid
-                                },
-                                headers: {
-                                    'Accept' : 'application/json',
-                                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                                },
-                                beforeSend: function(){
-                                    Rats.UI.LoadAnimation.start();
-                                },
-                                statusCode: {
-                                    200: function(responseObject) {
-                                        console.log(responseObject);
-                                        if(responseObject.status == true) {
-                                            $.gritter.add({
-                                                title: 'Penghapusan data berhasil',
-                                                text: responseObject.message,
-                                                class_name: 'gritter-success gritter-center'
-                                            });
+                        var captcha   = $("input[name=captcha]").val();
+                        var dataid    = $('#data-uuid').val();
+                        var companyid = $('#data-company').val();
+                        var grupid    = $('#data-grup').val();
+                        var kategoriid= $('#data-kategori').val();
 
-                                            $('#tabelSubKategoriAkun').dataTable().fnDestroy();
-                                            subkategori.request();
+                        if(captcha != "" && captcha.length == 6)
+                        {
+                            if(isConfirm)
+                            {
+                                $.ajax({
+                                    type: 'DELETE',
+                                    url: baseApiUrl + '/pengaturan/mata-anggaran/subkategori',
+                                    dataType: 'json',
+                                    data : {
+                                        'company_id' : companyid,
+                                        'grup_id'    : grupid,
+                                        'kategori_id': kategoriid,
+                                        'kodeAkun'   : dataid,
+                                        captcha      : captcha,
+                                    },
+                                    headers: {
+                                        'Accept' : 'application/json',
+                                        'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
+                                    },
+                                    beforeSend: function(){
+                                        Rats.UI.LoadAnimation.start();
+                                    },
+                                    statusCode: {
+                                        200: function(responseObject) {
+                                            if(responseObject.status == true) {
+                                                $.gritter.add({
+                                                    title: 'Penghapusan data berhasil',
+                                                    text: responseObject.message,
+                                                    class_name: 'gritter-success gritter-center'
+                                                });
+
+                                                $('#tabelSubKategoriAkun').dataTable().fnDestroy();
+                                                subkategori.request();
+                                            }
+                                        },
+                                        422: function() {
+                                            $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                                                $('#captImg img').attr('src', data);
+                                            });
+            
+                                            $('#form-captcha').addClass('has-error')
+                                            $('#captcha').addClass('inputError');
+                                            $('#captcha').val('');
+            
+                                            $.gritter.add({
+                                                title: 'Terjadi Kesalahan',
+                                                text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                                class_name: 'gritter-warning gritter-center',
+                                                time: 1500
+                                            });
+                                        },
+                                        401: function() {
+                                            UnauthorizedMessages();
+                                        },
+                                        500: function() {
+                                            $.gritter.add({
+                                                title: 'Terjadi Kesalahan',
+                                                text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                                                class_name: 'gritter-error gritter-center',
+                                                time: 1500
+                                            });
                                         }
                                     },
-                                    401: function() {
-                                        UnauthorizedMessages();
-                                    },
-                                    500: function() {
-                                        $.gritter.add({
-                                            title: 'Terjadi Kesalahan',
-                                            text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
-                                            class_name: 'gritter-error gritter-center'
-                                        });
+                                    error: function() {
+                                        Rats.UI.LoadAnimation.stop(spinner);
                                     }
-                                },
-                                error: function() {
-                                    Rats.UI.LoadAnimation.stop(spinner);
-                                }
-                            });
-                        }else {
-                            $('#modalView').modal('show');
+                                });
+                            }else {
+                                $('#modalView').modal('show');
+                            }
+                        }else
+                        {
+                            if(isConfirm)
+                            {
+                                $('#form-captcha').addClass('has-error')
+                                $('#captcha').addClass('inputError');
+                                $('#captcha').val('');
+
+                                $.gritter.add({
+                                    title: 'Terjadi Kesalahan',
+                                    text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                    class_name: 'gritter-warning gritter-center',
+                                    time: 1500
+                                });
+
+                                return false;
+                            }else {
+                                $('#modalView').modal('show');
+                            }
                         }
                     }
+                });
+
+                $('.refreshCaptcha').on('click', function(e){
+                    e.preventDefault();
+                    
+                    $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                        $('#captImg img').attr('src', data);
+                    });
                 });
             });
         },
@@ -683,7 +755,7 @@ function subKategoriRequest(company_id, grup_id, kategori_id, ids) {
                     $('#txtCreatedAt').text(responseObject.data.created_at);
                     
                     $('#modalView').modal('show');
-                    $('#data-id').val(ids);
+                    $('#data-uuid').val(ids);
                     $('#data-grup').val(grup_id);
                     $('#data-kategori').val(kategori_id);
                     $('#data-company').val(company_id);

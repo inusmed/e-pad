@@ -21,10 +21,34 @@ var rekening = function () {
 
             $('#btn-delete').click(function() {
                 $('#modalView').modal('hide');
+
+                $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                    $('#captImg img').attr('src', data);
+                });
+                
                 bootbox.confirm({
                     message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penghapusan Data </h4><hr>\
                         <h5>Apakah anda yakin ingin menghapus data tersebut?</h5>\
                         Penghapusan akun rekening ini akan menghapus turunan rekening dari rekening utama yang anda hapus\
+                        <br><br>\
+                        <div class='form-login'>\
+                            <div class='form-group' id='form-captcha'>\
+                                <div style='display: flex'>\
+                                    <div style='flex: 3;'>\
+                                        <input type='text' class='form-control' name='captcha' id='captcha' placeholder='Captcha' value='' maxlength='6' autocomplete='off'>\
+                                        <span class='text-danger'>masukkan captha untuk konfirmasi</span>\
+                                    </div>\
+                                    <div style='flex: 1;'>\
+                                        <a href='javascript:void(0);' class='refreshCaptcha'>\
+                                            <img src='"+baseUrl+'/assets/images/icons/refresh.png'+"' style='padding:5px 0 0 5px' alt='load'>\
+                                        </a>\
+                                    </div>\
+                                    <div style='flex: 1;'>\
+                                        <p id='captImg'><img></p>\
+                                    </div>\
+                                </div>\
+                            </div>\
+                        </div>\
                     </div>",
                     buttons: {
                         confirm: {
@@ -37,68 +61,109 @@ var rekening = function () {
                         }
                     },
                     callback: function(isConfirm) {
-                        if(isConfirm)
-                        {
-                            var dataid    = $('#data-id').val();
-                            var companyid = $('#data-company').val();
-                            var categorid = $('#data-kategori').val();
-                            var subcategorid = $('#data-subkategori').val();
-                            var subrekeningid = $('#data-subrekening').val();
-                            var groupid   = $('#data-grup').val();
-                            var kategori_pajak   = $('#data-kategori-pajak').val();
-                            
-                            $.ajax({
-                                type: 'DELETE',
-                                url: baseApiUrl + '/pengaturan/mata-anggaran/rekening',
-                                dataType: 'json',
-                                data : {
-                                    'company_id' : companyid,
-                                    'grup_id'    : groupid,
-                                    'kategori_id': categorid,
-                                    'subkategori_id': subcategorid,
-                                    'subrekening_id' : subrekeningid,
-                                    'kategori_pajak' : kategori_pajak,
-                                    'kodeAkun'   : dataid
-                                },
-                                headers: {
-                                    'Accept' : 'application/json',
-                                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                                },
-                                beforeSend: function(){
-                                    Rats.UI.LoadAnimation.start();
-                                },
-                                statusCode: {
-                                    200: function(responseObject) {
-                                        if(responseObject.status == true) {
-                                            $.gritter.add({
-                                                title: 'Penghapusan data berhasil',
-                                                text: responseObject.message,
-                                                class_name: 'gritter-success gritter-center',
-                                                time : 3000
-                                            });
+                        var captcha   = $("input[name=captcha]").val();
+                        var dataid    = $('#data-id').val();
+                        var companyid = $('#data-company').val();
+                        var categorid = $('#data-kategori').val();
+                        var subcategorid = $('#data-subkategori').val();
+                        var subrekeningid = $('#data-subrekening').val();
+                        var groupid   = $('#data-grup').val();
+                        var kategori_pajak   = $('#data-kategori-pajak').val();
 
-                                            $('#tabelAkunRekening').dataTable().fnDestroy();
-                                            rekening.request();
+                        if(captcha != "" && captcha.length == 6)
+                        {
+                            if(isConfirm)
+                            {
+                                $.ajax({
+                                    type: 'DELETE',
+                                    url: baseApiUrl + '/pengaturan/mata-anggaran/rekening',
+                                    dataType: 'json',
+                                    data : {
+                                        'company_id' : companyid,
+                                        'grup_id'    : groupid,
+                                        'kategori_id': categorid,
+                                        'subkategori_id': subcategorid,
+                                        'subrekening_id' : subrekeningid,
+                                        'kategori_pajak' : kategori_pajak,
+                                        'kodeAkun'   : dataid,
+                                        captcha      : captcha
+                                    },
+                                    headers: {
+                                        'Accept' : 'application/json',
+                                        'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
+                                    },
+                                    beforeSend: function(){
+                                        Rats.UI.LoadAnimation.start();
+                                    },
+                                    statusCode: {
+                                        200: function(responseObject) {
+                                            if(responseObject.status == true) {
+                                                $.gritter.add({
+                                                    title: 'Penghapusan data berhasil',
+                                                    text: responseObject.message,
+                                                    class_name: 'gritter-success gritter-center',
+                                                    time : 3000
+                                                });
+    
+                                                $('#tabelAkunRekening').dataTable().fnDestroy();
+                                                rekening.request();
+                                            }
+                                        },
+                                        422: function() {
+                                            $('#form-captcha').addClass('has-error')
+                                            $('#captcha').addClass('inputError');
+                                            $('#captcha').val('');
+            
+                                            $.gritter.add({
+                                                title: 'Terjadi Kesalahan',
+                                                text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                                class_name: 'gritter-warning gritter-center',
+                                                time: 1000
+                                            });
+                                        },
+                                        401: function() {
+                                            UnauthorizedMessages();
+                                        },
+                                        500: function() {
+                                            $.gritter.add({
+                                                title: 'Terjadi Kesalahan',
+                                                text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                                                class_name: 'gritter-error gritter-center',
+                                                time: 1000
+                                            });
                                         }
                                     },
-                                    401: function() {
-                                        UnauthorizedMessages();
-                                    },
-                                    500: function() {
-                                        $.gritter.add({
-                                            title: 'Terjadi Kesalahan',
-                                            text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
-                                            class_name: 'gritter-error gritter-center',
-                                            time : 3000
-                                        });
+                                    error: function() {
+                                        Rats.UI.LoadAnimation.stop(spinner);
                                     }
-                                },
-                                error: function() {
-                                    Rats.UI.LoadAnimation.stop(spinner);
-                                }
-                            });
-                        }else {
-                            $('#modalView').modal('show');
+                                });
+                            }else
+                            {
+                                $('#modalView').modal('show');
+                            }
+                        }
+                        else {
+                            if(isConfirm)
+                            {
+                                $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                                    $('#captImg img').attr('src', data);
+                                });
+
+                                $('#form-captcha').addClass('has-error')
+                                $('#captcha').addClass('inputError');
+                                $('#captcha').val('');
+
+                                $.gritter.add({
+                                    title: 'Terjadi Kesalahan',
+                                    text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                    class_name: 'gritter-warning gritter-center',
+                                    time: 1000
+                                });
+
+                                return false;
+                            }else {
+                                $('#modalView').modal('show');
+                            }
                         }
                     }
                 });

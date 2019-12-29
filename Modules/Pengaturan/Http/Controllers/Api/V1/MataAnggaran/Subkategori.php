@@ -1,6 +1,7 @@
 <?php namespace Modules\Pengaturan\Http\Controllers\Api\V1\MataAnggaran;
 
 use Uuid;
+use Session;
 use DataTables;
 use Validator;
 use Illuminate\Http\Request;
@@ -167,25 +168,35 @@ class Subkategori extends Controller
      */
     public function destroy(SubkategoriRepository $SubkategoriRepository)
     {
-        $delete =  $SubkategoriRepository->deleteBy([
-            'company_id'    => request('company_id'),
-            'grup_id'       => request('grup_id'),
-            'kategori_id'   => request('kategori_id'),
-            'uuid'          => request('kodeAkun')
-        ]);
+        $validator = Validator::make(request()->all(), ['captcha' => 'required|captcha']);
 
-        if($delete)
+        if( !$validator->fails() )
         {
+            $delete =  $SubkategoriRepository->deleteBy([
+                'company_id'    => request('company_id'),
+                'grup_id'       => request('grup_id'),
+                'kategori_id'   => request('kategori_id'),
+                'uuid'          => request('kodeAkun')
+            ]);
+
+            if($delete)
+            {
+                return response()->json([
+                    'status'    => true,
+                    'message'   => 'Data rekening barhasil dihapus'
+                ], 200);
+            }
+
             return response()->json([
-                'status'    => true,
-                'message'   => 'Data rekening barhasil dihapus'
-            ], 200);
+                'status'    => false,
+                'message'   => 'Terjadi kesalahan gagal hapus, silahkan hubungi administrator untuk support'
+            ], 500);
         }
 
         return response()->json([
-            'status'    => false,
-            'message'   => 'Terjadi kesalahan gagal hapus, silahkan hubungi administrator untuk support'
-        ], 500);
+            'status'   => false,
+            'message'  => $validator->getMessageBag()->toArray()
+        ], 422);
     }
 
     /**

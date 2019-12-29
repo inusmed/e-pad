@@ -13,8 +13,12 @@ use Illuminate\Http\Request;
 |
 */
 Route::group(['prefix' => 'v1/pengaturan'], function () {
+    Route::get('mata-anggaran/refreshCaptcha', function() {
+        return captcha_src();
+    });
     Route::group(['middleware' => 'auth:api', 'namespace' => 'Api\V1'], function() {
         Route::group(['middleware' => 'auth:api'], function() {
+
             Route::group(['namespace' => 'MataAnggaran'], function() {
                 Route::post('mata-anggaran/grup-list', 'Grup@datatable');
                 Route::get('mata-anggaran/grup/{company}/{uuid}', 'Grup@get');
