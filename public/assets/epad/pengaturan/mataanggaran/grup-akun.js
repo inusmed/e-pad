@@ -21,7 +21,7 @@ var groups = function () {
                 columnDefs: [ { orderable: false, targets: [0,1,2,3,4]} ],
                 "ajax" : {
                     type	: 'POST',
-                    url		: baseApiUrl + '/pengaturan/mata-anggaran/grup/' + company_id,
+                    url		: baseApiUrl + '/pengaturan/mata-anggaran/grup-list?company_id=' + company_id +'&provider=datatable',
                     dataType: 'json',
                     headers: {
                         'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
@@ -66,20 +66,20 @@ var groups = function () {
                     {
                         data: 'status', className: "center", "width": "5%", 
                         render: function (data, type, full)  {
-                            var id     = full['id']
+                            var id     = full['uuid']
                             var status = full['status'];
                             var company_id = full['company_id'];
     
                             if(status == '0')  {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['nama_grup']+"'' onclick=groupRequest('"+company_id+"',"+id+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
-                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/kategori/"+data+"' style='cursor:pointer' data-rel='tooltip' title='Category "+full['nama_grup']+"' class='disabled btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
+                                <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['nama_grup']+"'' onclick=groupRequest('"+company_id+"','"+id+"') class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/kategori-akun/"+data+"' style='cursor:pointer' data-rel='tooltip' title='Category "+full['nama_grup']+"' class='disabled btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
                                 </div>";
                             }
                             else {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['nama_grup']+"'' onclick=groupRequest('"+company_id+"',"+id+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
-                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/kategori/"+company_id+"/"+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='Category "+full['nama_grup']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
+                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['nama_grup']+"'' onclick=groupRequest('"+company_id+"','"+id+"') class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/kategori-akun/"+company_id+"?grup_id="+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='Category "+full['nama_grup']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
                                 </div>";
                             }
                         }

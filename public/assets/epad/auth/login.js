@@ -85,7 +85,8 @@ $(function(){
                 200: function(responseObject) {
 
                     localStorage.setItem('api_token', responseObject.data.user.token)
-                    window.location = responseObject.path
+                    // window.location = responseObject.path + '/epad'
+                    window.location = baseUrl;
                 },
                 401: function(responseObject) {
                     $.get(baseUrl + '/auth/refreshCaptcha', function(data){

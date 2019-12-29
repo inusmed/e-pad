@@ -1,37 +1,13 @@
-var categories = function () {
+var kategori = function () {
     return {
         init: function() {
-            spinner = Rats.UI.LoadAnimation.start();
-            /* start ping server to initiate communication */
-            $.ajax({
-                type:'GET',
-                url: baseApiUrl + '/ping-server',
-                headers: {
-                    'Accept' : 'application/json',
-                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                },
-                statusCode: {
-                    200: function(responseObject) {
-                        if(responseObject.ping == true) {
-                            categories.request();
-                            $('#table-content').show();
-                        }
-                    },
-                    401: function() {
-                        UnauthorizedMessages()
-                    }
-                },
-                error: function() {
-                    Rats.UI.LoadAnimation.stop(spinner);
-                }
-            });
-
+            kategori.request()
             /* enabeld button edit */
             $('#btn-edit').click(function() {
-                var dataid    = $('#data-edit').val();
+                var dataid    = $('#data-uuid').val();
                 var companyid = $('#data-company').val();
                 var groupid   = $('#data-group').val();
-                window.location = baseUrl + '/pengaturan/mata-anggaran/kategori/' + companyid + '/' + groupid + '/' + dataid + '/edit'
+                window.location = baseUrl + '/pengaturan/mata-anggaran/kategori-akun/edit/' + companyid + '?grup_id='+groupid+'&uuid='+dataid
             });
 
             $('#btn-delete').click(function() {
@@ -54,7 +30,7 @@ var categories = function () {
                     callback: function(isConfirm) {
                         if(isConfirm)
                         {
-                            var dataid    = $('#data-edit').val();
+                            var dataid    = $('#data-uuid').val();
                             var companyid = $('#data-company').val();
                             var groupid   = $('#data-group').val();
                             
@@ -63,7 +39,7 @@ var categories = function () {
                                 url: baseApiUrl + '/pengaturan/mata-anggaran/kategori',
                                 dataType: 'json',
                                 data : {
-                                    'company_id' : companyid,
+                                    'company_id': companyid,
                                     'grup_id'   : groupid,
                                     'kodeAkun'  : dataid
                                 },
@@ -76,7 +52,7 @@ var categories = function () {
                                 },
                                 statusCode: {
                                     200: function(responseObject) {
-                                        console.log(responseObject);
+                                        
                                         if(responseObject.status == true) {
                                             $.gritter.add({
                                                 title: 'Penghapusan data berhasil',
@@ -85,7 +61,7 @@ var categories = function () {
                                             });
 
                                             $('#tabelAkunKategori').dataTable().fnDestroy();
-                                            categories.request();
+                                            kategori.request();
                                         }
                                     },
                                     401: function() {
@@ -113,7 +89,7 @@ var categories = function () {
 
         /* create pages */
         create: function() {
-            categories.requestList();
+            kategori.eventChangeList();
             
             /* event change of list option */
             $("#txtRekUtama").chosen().change(function(){
@@ -156,14 +132,6 @@ var categories = function () {
                             var kodeAkun = $('#id').val();
                             var id = kodeAkun.substr(kodeAkun.lastIndexOf('.') + 1);
 
-                            console.log({
-                                'company_id'    : company_id,
-                                'grup_id'       : grup_id,
-                                'id'            : id,
-                                'nama'          : $('#nama').val(),
-                                'status'        : $("input[name='status']:checked").val(),
-                            });
-
                             $.ajax({
                                 type: 'POST',
                                 url: baseApiUrl+ '/pengaturan/mata-anggaran/kategori',
@@ -171,7 +139,7 @@ var categories = function () {
                                     'company_id'    : company_id,
                                     'grup_id'       : grup_id,
                                     'id'            : id,
-                                    'name'          : $('#name').val(),
+                                    'nama'          : $('#nama').val(),
                                     'status'        : $("input[name='status']:checked").val(),
                                 },
                                 headers: {
@@ -199,8 +167,8 @@ var categories = function () {
                                         });
 
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/mata-anggaran/kategori/'+ responseObject.data.company_id +'/' + responseObject.data.grup_id
-                                         }, 2000);
+                                            window.location = baseUrl + '/pengaturan/mata-anggaran/kategori-akun/'+ responseObject.data.company_id +'?grup_id=' + responseObject.data.grup_id
+                                         }, 1000);
                                     },
                                     401: function(responseObject) {
                                         var response = JSON.parse(responseObject.responseText).message.messages[0];
@@ -271,79 +239,88 @@ var categories = function () {
 
         /* edit pages */
         edit: function() {
+            /* get data from server */
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl + '/pengaturan/mata-anggaran/grup/'+ company_id + '/' + grup_id + '/lists',
+                url: baseApiUrl + '/pengaturan/mata-anggaran/kategori/' + company_id + '/grup/' + grup_id + '/uuid/' + id,
+                dataType: 'json',
                 headers: {
-                    "Accept"  : "application/json",
                     'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
                 },
-                beforeSend : function() {
-                    $('#txtRekUtama').empty()
+                beforeSend:function() {
                     spinner = Rats.UI.LoadAnimation.start();
                 },
-                success: function(data) {
-                    $.each(data, function (index) {
-                        var opt = $("<option />", {
-                            value: data[index].id,
-                            text : data[index].name,
-                        });
-                        $('#txtRekUtama').append(opt);
-                    });
-                    $("#txtRekUtama").chosen().trigger("chosen:updated");
+                statusCode: {
+                    200: function(responseObject) {
+    
+                        if(responseObject.status == true) {    
+                            $('#txtCorpCode').val(responseObject.data.company_id)
+                            $('#nama').val(responseObject.data.kategori_nama)
+                            $('#txtCreatedAt').val(responseObject.data.created_at)
+                            $('#txtUpdatedAt').val(responseObject.data.updated_at)
+                            $('#kodeAkun').val(responseObject.data.grup_id);
+                            
+                            if(responseObject.data.status == 'Aktif' )
+                            {
+                                $("#aktif").attr('checked', 'checked');
+                            }
+                            else
+                            {
+                                $("#nonaktif").attr('checked', 'checked');
+                            }
+                            
+                            $('#txtRekUtama').val(responseObject.data.grup_id).chosen().trigger("chosen:updated");
+                            cleave = new Cleave('#kodeAkun', {
+                                delimiters: ['.'],
+                                prefix: $('#kodeAkun').val(),
+                                numericOnly: true,
+                                blocks: [1,2]
+                            });
+    
+                            $('#kodeAkun').val(responseObject.data.grup_id+'.'+responseObject.data.id)
 
-                    /* get data from server */
-                    $.ajax({
-                        type: 'GET',
-                        url: baseApiUrl + '/pengaturan/mata-anggaran/kategori/' + company_id + '/' + grup_id + '/' + id + '/get',
-                        dataType: 'json',
-                        headers: {
-                            'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                        },
-                        beforeSend:function() {
-                            spinner = Rats.UI.LoadAnimation.start();
-                        },
-                        statusCode: {
-                            200: function(responseObject) {
-            
-                                if(responseObject.status == true) {    
-                                    $('#txtCorpCode').val(responseObject.data.company_id)
-                                    $('#nama').val(responseObject.data.kategori_nama)
-                                    $('#txtCreatedAt').val(responseObject.data.created_at)
-                                    $('#txtUpdatedAt').val(responseObject.data.updated_at)
-                                    $('#kodeAkun').val(responseObject.data.grup_id);
-                                    
-                                    if(responseObject.data.status == 'Aktif' )
-                                    {
-                                        $("#aktif").attr('checked', 'checked');
-                                    }
-                                    else
-                                    {
-                                        $("#nonaktif").attr('checked', 'checked');
-                                    }
-                                    
-                                    $('#txtRekUtama').val(responseObject.data.grup_id).chosen().trigger("chosen:updated");
-                                    cleave = new Cleave('#kodeAkun', {
-                                        delimiters: ['.'],
-                                        prefix: $('#kodeAkun').val(),
-                                        numericOnly: true,
-                                        blocks: [1,2]
-                                    });
-            
-                                    $('#kodeAkun').val(responseObject.data.grup_id+'.'+responseObject.data.id)
-            
-                                    Rats.UI.LoadAnimation.stop(spinner);
-                                }
-                            },
-                            401: function(responseObject) {
-                                UnauthorizedMessages()
-                            },
-                        },
-                        error: function() {
-                            Rats.UI.LoadAnimation.stop(spinner);
+                            kategori.eventChangeList()
                         }
-                    });
+                    },
+                    500: function() {
+                        $.gritter.add({
+                            title: 'Terjadi Kesalahan',
+                            text: 'Data tidak ditemukan, silahkan hubungi administrator untuk support',
+                            class_name: 'gritter-error gritter-center'
+                        });
+
+                        setTimeout(function(){
+                            window.location = baseUrl + '/pengaturan/mata-anggaran/kategori-akun/' + company_id + '?grup_id=' + grup_id
+                         }, 1500);
+                    },
+                    401: function(responseObject) {
+                        UnauthorizedMessages()
+                    },
                 },
+                error: function() {
+                    Rats.UI.LoadAnimation.stop(spinner);
+                }
+            });
+
+            /* event change of list option */
+            $("#txtRekUtama").chosen().change(function(){
+                var mainacc = $(this).val();
+                if(mainacc == 0)
+                {
+                    cleave.destroy();
+                    $("#kodeAkun").val('');
+                    $("#kodeAkun").attr("readonly", true);
+                }
+                else
+                {
+                    cleave = new Cleave('#kodeAkun', {
+                        delimiters: ['.'],
+                        prefix: mainacc,
+                        numericOnly: true,
+                        blocks: [1,2]
+                    });
+                    $("#kodeAkun").attr("readonly", false); 
+                }
             });
 
             $('#btn-edit').click(function()
@@ -369,12 +346,9 @@ var categories = function () {
 
                             $.ajax({
                                 type: 'PATCH',
-                                url: baseApiUrl + '/pengaturan/mata-anggaran/kategori',
+                                url: baseApiUrl + '/pengaturan/mata-anggaran/kategori/' + company_id + '/' + grup_id + '/' + id,
                                 data : {
-                                    'company_id'    : company_id,
-                                    'grup_id'       : grup_id,
-                                    'id'            : id,
-                                    'kodeAkun'         : kodeAkun,
+                                    'kodeAkun'      : kodeAkun,
                                     'nama'          : $('#nama').val(),
                                     'status'        : $("input[name='status']:checked").val(),
                                 },
@@ -390,7 +364,7 @@ var categories = function () {
                                 },
                                 statusCode: {
                                     200: function(responseObject) {
-                                        if(responseObject.success == true) {
+                                        if(responseObject.status == true) {
                                             $.gritter.add({
                                                 title: 'Pembaharuan Berhasil',
                                                 text: 'Data telah berhasil dilakukan pembaharuan. Silahkan menunggu beberapa saat',
@@ -398,8 +372,8 @@ var categories = function () {
                                             });
     
                                             setTimeout(function(){
-                                                window.location = baseUrl + '/pengaturan/mata-anggaran/kategori/'+ responseObject.data.company_id +'/' + responseObject.data.grup_id
-                                            }, 2000);
+                                                window.location = baseUrl + '/pengaturan/mata-anggaran/kategori-akun/'+ responseObject.data.company_id +'?grup_id=' + responseObject.data.grup_id
+                                            }, 1000);
                                         }
                                     },
                                     422: function(responseObject) {
@@ -453,27 +427,6 @@ var categories = function () {
                     }
                 });
             });
-
-            /* event change of list option */
-            $("#txtRekUtama").chosen().change(function(){
-                var mainacc = $(this).val();
-                if(mainacc == 0)
-                {
-                    cleave.destroy();
-                    $("#kodeAkun").val('');
-                    $("#kodeAkun").attr("readonly", true);
-                }
-                else
-                {
-                    cleave = new Cleave('#kodeAkun', {
-                        delimiters: ['.'],
-                        prefix: mainacc,
-                        numericOnly: true,
-                        blocks: [1,2]
-                    });
-                    $("#kodeAkun").attr("readonly", false); 
-                }
-            });
         },
 
         /* request data */
@@ -492,14 +445,25 @@ var categories = function () {
                 columnDefs: [ { orderable: false, targets: [0,1,2,3,4]} ],
                 "ajax" : {
                     type	: 'POST',
-                    url		: baseApiUrl + '/pengaturan/mata-anggaran/kategori/' + company_id + '/' + grup_id + '/grup',
+                    url		: baseApiUrl + '/pengaturan/mata-anggaran/kategori/' + company_id + '/grup/' + grup_id,
                     dataType: 'json',
                     headers: {
                         'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
                     },
                     statusCode: {
-                        401: function(responseObject) {
-                            UnauthorizedMessages()
+                        401: function() {
+                            UnauthorizedMessages();
+                        },
+                        500: function() {
+                            $.gritter.add({
+                                title: 'Terjadi Kesalahan',
+                                text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                                class_name: 'gritter-error gritter-center'
+                            });
+
+                            setTimeout(function(){
+                                window.location = baseUrl + '/pengaturan/mata-anggaran/grup-akun'
+                             }, 2000);
                         },
                         522: function(responseObject) {
                             $('#tabelAkunKategori').dataTable().fnDestroy();
@@ -507,9 +471,13 @@ var categories = function () {
                             UnAvailableCloudData(JSON.parse(responseObject.responseText).message)
                         }
                     },
+                    error: function() {
+                        Rats.UI.LoadAnimation.stop(spinner);
+                    },
                     dataSrc	: function ( response ) {
                         Rats.UI.LoadAnimation.stop(spinner);
                         if(response.data) {
+                            $('#table-content').show();
                             return response.data
                         }
                     }
@@ -554,19 +522,19 @@ var categories = function () {
                     {
                         data: 'status', className: "center", "width": "5%", 
                         render: function (data, type, full)  {
-                            var id     = full['id']
+                            var id     = full['uuid']
                             var status = full['status'];
                             var grup_id = full['grup_id'];
                             var company_id = full['company_id'];
                             
                             if(status == '0')  {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['category_name']+"'' onclick=categoryRequest('"+company_id+"',"+grup_id+","+id+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['category_name']+"'' onclick=categoryRequest('"+company_id+"',"+grup_id+",'"+id+"') class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
                                 </div>";
                             }
                             else {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['category_name']+"'' onclick=categoryRequest('"+company_id+"',"+grup_id+","+id+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['category_name']+"'' onclick=categoryRequest('"+company_id+"',"+grup_id+",'"+id+"') class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
                                 </div>";
                             }
                         }
@@ -580,12 +548,12 @@ var categories = function () {
                             
                             if(status == '0')  {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/subkategori/"+data+"' style='cursor:pointer' data-rel='tooltip' title='SubCategory "+full['category_name']+"' class='disabled btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
+                                    <a href='javascript:void(0)' style='cursor:pointer' data-rel='tooltip' title='SubCategory "+full['category_name']+"' class='disabled btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
                                 </div>";
                             }
                             else {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/subkategori/"+company_id+"/"+grup_id+'/'+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='SubCategory "+full['category_name']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
+                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/subkategori-akun/"+company_id+"?grup_id="+grup_id+'&kategori_id='+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='SubCategory "+full['category_name']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
                                 </div>";
                             }
                         }
@@ -593,21 +561,18 @@ var categories = function () {
                 ]
             });
         },
-        
-        /* request list options */
-        requestList: function() {
+
+        eventChangeList: function() {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl+ '/pengaturan/mata-anggaran/grup/'+company_id + '/' + grup_id + '/lists',
+                url: baseApiUrl + '/pengaturan/mata-anggaran/grup/'+ company_id + '/grup/' + grup_id + '/list-grup',
                 headers: {
                     "Accept"  : "application/json",
+                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
                 },
                 beforeSend : function() {
                     $('#txtRekUtama').empty()
                     spinner = Rats.UI.LoadAnimation.start();
-                },
-                headers: {
-                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
                 },
                 success: function(data) {
                     $.each(data, function (index) {
@@ -617,8 +582,12 @@ var categories = function () {
                         });
                         $('#txtRekUtama').append(opt);
                     });
+
                     $("#txtRekUtama").chosen().trigger("chosen:updated");
-    
+
+                    if(pages == 'edit')
+                        $("#txtRekUtama").chosen().val(grup_id).attr('disabled', true).trigger("chosen:updated");
+
                     Rats.UI.LoadAnimation.stop(spinner);
                 },
             });
@@ -630,7 +599,7 @@ var categories = function () {
 function categoryRequest(company_id, grup_id, ids) {
     $.ajax({
         type: 'GET',
-        url: baseApiUrl + '/pengaturan/mata-anggaran/kategori/' + company_id + '/' + grup_id + '/' + ids + '/get',
+        url: baseApiUrl + '/pengaturan/mata-anggaran/kategori/' + company_id + '/grup/' + grup_id + '/uuid/' + ids,
         dataType: 'json',
         headers: {
             'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
@@ -651,7 +620,7 @@ function categoryRequest(company_id, grup_id, ids) {
                     $('#txtCreatedAt').text(responseObject.data.created_at);
                     
                     $('#modalView').modal('show');
-                    $('#data-edit').val(ids);
+                    $('#data-uuid').val(ids);
                     $('#data-group').val(grup_id);
                     $('#data-company').val(company_id);
                     Rats.UI.LoadAnimation.stop(spinner);
@@ -660,6 +629,14 @@ function categoryRequest(company_id, grup_id, ids) {
             401: function(responseObject) {
                 UnauthorizedMessages()
             },
+            500: function() {
+                $.gritter.add({
+                    title: 'Terjadi Kesalahan',
+                    text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                    class_name: 'gritter-error gritter-center'
+                });
+                $('#modalView').modal('hide');
+            }
         },
         error: function() {
             Rats.UI.LoadAnimation.stop(spinner);
@@ -669,17 +646,40 @@ function categoryRequest(company_id, grup_id, ids) {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    switch (pages) {
-        case 'show':
-            categories.init()
-        break;
-    
-        case 'create':
-            categories.create()
-        break;
+    $.ajax({
+        type:'GET',
+        url: baseApiUrl + '/ping-server',
+        beforeSend: function() {
+            spinner = Rats.UI.LoadAnimation.start()
+        },
+        headers: {
+            'Accept' : 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('api_token'),
+        },
+        statusCode: {
+            200: function(responseObject) {
+                if(responseObject.ping == true) {
+                    switch (pages) {
+                        case 'show':
+                            kategori.init()
+                        break;
+                    
+                        case 'create':
+                            kategori.create()
+                        break;
 
-        case 'edit':
-            categories.edit()
-        break;
-    }
+                        case 'edit':
+                            kategori.edit()
+                        break;
+                    }
+                }
+            },
+            401: function() {
+                UnauthorizedMessages()
+            }
+        },
+        error: function() {
+            Rats.UI.LoadAnimation.stop(spinner);
+        }
+    });
 })

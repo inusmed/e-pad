@@ -1,0 +1,25 @@
+{
+    "name": "nwidart/pengaturan",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Pengaturan\\Providers\\PengaturanServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Pengaturan\\": ""
+        }
+    }
+}

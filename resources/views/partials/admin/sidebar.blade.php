@@ -409,7 +409,7 @@
     
                     <ul class="submenu">
                         <li class="{{ (request()->is('pengaturan/mata-anggaran/*')) ? 'active' : '' }}">
-                            <a href="{{ url('pengaturan/mata-anggaran/grup') }}">
+                            <a href="{{ url('pengaturan/mata-anggaran/grup-akun') }}">
                                 <i class="menu-icon fa fa-caret-right"></i>
                                 <small> Master Rekening</small>
                             </a>

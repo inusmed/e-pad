@@ -10,11 +10,12 @@ var subrekening = function () {
             $('#btn-edit').click(function() {
                 var dataid    = $('#data-id').val();
                 var companyid = $('#data-company').val();
-                var categorid = $('#data-kategori').val();
-                var subcategorid = $('#data-subkategori').val();
-                var groupid   = $('#data-grup').val();
+                var kategorid = $('#data-kategori').val();
+                var subkategori_id = $('#data-subkategori').val();
+                var grupid   = $('#data-grup').val();
+                var kategori_pajak_id   = $('#data-kategori-pajak').val();
                 
-                window.location = baseUrl + '/pengaturan/mata-anggaran/subrekening/' + companyid + '/' + groupid + '/' + categorid + '/' + subcategorid + '/' + dataid + '/edit'
+                window.location = baseUrl + '/pengaturan/mata-anggaran/subrekening-akun/edit/' + companyid + '?kategori_pajak_id='+ kategori_pajak_id +'&grup_id='+grupid+'&kategori_id='+kategorid+'&subkategori_id='+subkategori_id+'&uuid='+dataid
             });
 
             $('#btn-delete').click(function() {
@@ -42,6 +43,7 @@ var subrekening = function () {
                             var categorid = $('#data-kategori').val();
                             var subcategorid = $('#data-subkategori').val();
                             var groupid   = $('#data-grup').val();
+                            var kategori_pajak_id   = $('#data-kategori-pajak').val();
                             
                             $.ajax({
                                 type: 'DELETE',
@@ -52,7 +54,8 @@ var subrekening = function () {
                                     'grup_id'    : groupid,
                                     'kategori_id': categorid,
                                     'subkategori_id': subcategorid,
-                                    'kodeAkun'   : dataid
+                                    'kodeAkun'   : dataid,
+                                    'kategori_pajak' : kategori_pajak_id
                                 },
                                 headers: {
                                     'Accept' : 'application/json',
@@ -63,12 +66,12 @@ var subrekening = function () {
                                 },
                                 statusCode: {
                                     200: function(responseObject) {
-                                        console.log(responseObject);
                                         if(responseObject.status == true) {
                                             $.gritter.add({
                                                 title: 'Penghapusan data berhasil',
                                                 text: responseObject.message,
-                                                class_name: 'gritter-success gritter-center'
+                                                class_name: 'gritter-success gritter-center',
+                                                time: 3000
                                             });
 
                                             $('#tableSubRekening').dataTable().fnDestroy();
@@ -166,8 +169,8 @@ var subrekening = function () {
                                         });
 
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/mata-anggaran/subrekening/'+ responseObject.data.company_id +'/' + responseObject.data.grup_id +'/' + responseObject.data.kategori_id + '/' + responseObject.data.subkategori_id
-                                        }, 2000);
+                                            window.location = baseUrl + '/pengaturan/mata-anggaran/subrekening-akun/' + responseObject.data.company_id +'?grup_id=' + responseObject.data.grup_id + '&kategori_id=' + responseObject.data.kategori_id + '&subkategori_id=' + subkategori_id
+                                        }, 1000);
                                     },
                                     401: function(responseObject) {
                                         UnauthorizedMessages();
@@ -202,10 +205,17 @@ var subrekening = function () {
                                             class_name: 'gritter-warning gritter-center'
                                         });
                                         Rats.UI.LoadAnimation.stop(spinner);
+                                    },
+                                    500: function() {
+                                        $.gritter.add({
+                                            title: 'Terjadi Kesalahan',
+                                            text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                                            class_name: 'gritter-error gritter-center'
+                                        });
                                     }
                                 },
                                 error: function() {
-                                
+                                    Rats.UI.LoadAnimation.stop(spinner);
                                 }
                             });
                         }
@@ -239,19 +249,11 @@ var subrekening = function () {
                             
                             $.ajax({
                                 type: 'PATCH',
-                                url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening',
+                                url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/pajak/' + kategori_pajak_id + '/grup/' + grup_id + '/kategori/'+ kategori_id + '/subkategori/' + subkategori_id +'/uuid/' + uuid,
                                 data: {
-                                    'company_id'    : company_id,
-                                    'grup_id'       : grup_id,
-                                    'akun_kategori'  : kategori_id,
-                                    'akun_subkategori': subkategori_id,
-                                    'id'            : id,
-                                    'kategori_id'   : $("#kategori_id").val(),
-                                    'subkategori_id': $("#subkategori_id").val(),
                                     'kodeAkun'      : kodeAkun,
                                     'nama'          : $('#nama').val(),
                                     'status'        : $("input[name='status']:checked").val(),
-                                    'kategori_pajak': $("input[type='radio'][name='kategori']:checked").val()
                                 },
                                 dataType: 'json',
                                 headers: {
@@ -272,7 +274,7 @@ var subrekening = function () {
                                             });
     
                                             setTimeout(function(){
-                                                window.location = baseUrl + '/pengaturan/mata-anggaran/subrekening/'+ responseObject.data.company_id +'/' + responseObject.data.grup_id + '/' + responseObject.data.kategori_id + '/' + responseObject.data.subkategori_id
+                                                window.location = baseUrl + '/pengaturan/mata-anggaran/subrekening-akun/' + responseObject.data.company_id +'?grup_id=' + responseObject.data.grup_id + '&kategori_id=' + responseObject.data.kategori_id + '&subkategori_id=' + subkategori_id
                                             }, 1000);
                                         }
                                     },
@@ -339,7 +341,7 @@ var subrekening = function () {
         get: function() {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/' + grup_id + '/' + kategori_id + '/' + subkategori_id + '/' + id +'/get',
+                url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/pajak/' + kategori_pajak_id +'/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id + '/uuid/' + uuid,
                 dataType: 'json',
                 headers: {
                     'Accept' : 'application/json',
@@ -354,9 +356,9 @@ var subrekening = function () {
                             $('#kategori-pajak-'+responseObject.data.kategori_pajak).prop('checked', true);
 
                             if(responseObject.data.status_id == 1) {
-                                $('#status-active').prop("checked", true);
+                                $('#aktif').prop("checked", true);
                             }else {
-                                $('#status-inactive').prop("checked", true);
+                                $('#nonaktif').prop("checked", true);
                             }
                             
                             $('#id').val(grup_id + '' + kategori_id + '' + subkategori_id + '' + responseObject.data.id)
@@ -375,6 +377,15 @@ var subrekening = function () {
                     },
                     401: function(responseObject) {
                         UnauthorizedMessages();
+                    },
+                    500: function() {
+                        $.gritter.add({
+                            title: 'Terjadi Kesalahan',
+                            text: 'Gagal memuat data, silahkan hubungi administrator untuk support.',
+                            class_name: 'gritter-error gritter-center'
+                        });
+
+                        Rats.UI.LoadAnimation.stop(spinner);
                     }
                 },
             });
@@ -396,7 +407,7 @@ var subrekening = function () {
                 "lengthMenu": [ 10, 15, 25, 50, 75, 100 ],
                 "ajax" : {
                     type	: 'POST',
-                    url		:  baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/' + grup_id + '/' + kategori_id +'/'+ subkategori_id +'/subkategori',
+                    url		: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id,
                     dataType: 'json',
                     headers: {
                         'Accept' : 'application/json',
@@ -406,11 +417,29 @@ var subrekening = function () {
                         401: function(responseObject) {
                             UnauthorizedMessages()
                         },
+                        419: function() {
+                            swal({
+                                title: "Token Kadarluarsa",
+                                text: "Token Keamanan login telah kadarluarsa, kami akan refresh halaman ini dan memberikan token baru.<br/><br/>",
+                                icon: "warning",
+                                showCancelButton: false,
+                                confirmButtonText: 'Refresh',
+                                type: 'error',
+                                html:true
+                            }, function(isConfirm) {
+                                window.location = baseUrl + '/login'
+                            });
+                        },
                         522: function(responseObject) {
                             $('#tableSubRekening').dataTable().fnDestroy();
                             $('#tableSubRekening').hide();
                             UnAvailableCloudData(JSON.parse(responseObject.responseText).message)
                         }
+                    },
+                    error: function() {
+                        $('#tableSubRekening').dataTable().fnDestroy();
+                        $('#tableSubRekening').hide();
+                        Rats.UI.LoadAnimation.stop(spinner);
                     },
                     dataSrc	: function ( response ) {
                         Rats.UI.LoadAnimation.stop(spinner);
@@ -461,12 +490,12 @@ var subrekening = function () {
                         render: function (data, type, full)  {
                             if(status == '0')  {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['subrekening_nama']+"'' onclick=subrekeningRequest('"+full['company_id']+"',"+full['grup_id']+","+full['kategori_id']+","+full['subkategori_id']+","+full['id']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['subrekening_nama']+"'' onclick=subrekeningRequest('"+full['company_id']+"',"+full['kategori_pajak_id']+","+full['grup_id']+","+full['kategori_id']+","+full['subkategori_id']+",'"+full['uuid']+"') class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
                                 </div>";
                             }
                             else {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['subrekening_nama']+"'' onclick=subrekeningRequest('"+full['company_id']+"',"+full['grup_id']+","+full['kategori_id']+","+full['subkategori_id']+","+full['id']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['subrekening_nama']+"'' onclick=subrekeningRequest('"+full['company_id']+"',"+full['kategori_pajak_id']+","+full['grup_id']+","+full['kategori_id']+","+full['subkategori_id']+",'"+full['uuid']+"') class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
                                 </div>";
                             }
                         }
@@ -482,7 +511,7 @@ var subrekening = function () {
                             }
                             else {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/rekening/"+full['company_id']+"/"+full['grup_id']+"/"+full['kategori_id']+'/'+full['subkategori_id']+'/'+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='Akun "+full['subrekening_nama']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
+                                    <a href='"+baseUrl+"/pengaturan/mata-anggaran/rekening-akun/"+full['company_id']+"?grup_id="+full['grup_id']+"&kategori_id="+full['kategori_id']+'&subkategori_id='+full['subkategori_id']+'&subrekening_id='+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='Akun "+full['subrekening_nama']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
                                 </div>";
                             }
                         }
@@ -494,7 +523,7 @@ var subrekening = function () {
         groupList: function(grup_id, kategori_id, subkategori_id, selected = true) {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl+ '/pengaturan/mata-anggaran/grup/'+company_id + '/' + grup_id + '/lists',
+                url: baseApiUrl+ '/pengaturan/mata-anggaran/grup/'+company_id + '/grup/' + grup_id + '/list-grup',
                 headers: {
                     "Accept"  : "application/json",
                     'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
@@ -511,10 +540,17 @@ var subrekening = function () {
                         $('#txtRekUtama').append(opt);
                     });
 
-                    if(selected)
+                    if(selected) {
+                        if(pages == 'edit')
+                            $("#txtRekUtama").val(grup_id).chosen().attr('disabled', true).trigger("chosen:updated");
+
                         $("#txtRekUtama").val(grup_id).chosen().trigger("chosen:updated");
-                    else
+                    }else {
+                        if(pages == 'edit')
+                            $("#txtRekUtama").val(0).chosen().attr('disabled', true).trigger("chosen:updated");
+
                         $("#txtRekUtama").val(0).chosen().trigger("chosen:updated");
+                    }
 
                     subrekening.categoryList(grup_id, kategori_id, subkategori_id, selected)
                 },
@@ -524,7 +560,7 @@ var subrekening = function () {
         categoryList: function(grup_id, kategori_id, subkategori_id, selected) {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl+ '/pengaturan/mata-anggaran/kategori/'+company_id + '/' + grup_id + '/lists',
+                url: baseApiUrl+ '/pengaturan/mata-anggaran/kategori/'+company_id + '/grup/' + grup_id + '/list-kategori',
                 headers: {
                     "Accept"  : "application/json",
                     'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
@@ -538,11 +574,18 @@ var subrekening = function () {
                             });
                             $('#kategori_id').append(opt);
                         });
-                        
-                        if(selected)
+
+                        if(selected) {
+                            if(pages == 'edit')
+                                $("#kategori_id").val(kategori_id).chosen().attr('disabled', true).trigger("chosen:updated");
+
                             $("#kategori_id").val(kategori_id).chosen().trigger("chosen:updated");
-                        else
+                        }else {
+                            if(pages == 'edit')
+                                $("#kategori_id").val(0).chosen().attr('disabled', true).trigger("chosen:updated");
+
                             $("#kategori_id").val(0).chosen().trigger("chosen:updated");
+                        }
 
                         subrekening.subcategoryList(grup_id, kategori_id, subkategori_id, selected)
                     }
@@ -561,7 +604,7 @@ var subrekening = function () {
         subcategoryList: function(grup_id, kategori_id, subkategori_id, selected) {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl+ '/pengaturan/mata-anggaran/subkategori/'+company_id + '/' + grup_id + '/' + kategori_id + '/lists',
+                url: baseApiUrl+ '/pengaturan/mata-anggaran/subkategori/'+company_id + '/grup/' + grup_id + '/kategori/' + kategori_id + '/list-subkategori',
                 headers: {
                     "Accept"  : "application/json",
                     'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
@@ -579,10 +622,17 @@ var subrekening = function () {
                             $('#subkategori_id').append(opt);
                         });
 
-                        if(selected)
+                        if(selected) {
+                            if(pages == 'edit')
+                                $("#subkategori_id").val(subkategori_id).chosen().attr('disabled', true).trigger("chosen:updated");
+
                             $("#subkategori_id").val(subkategori_id).chosen().trigger("chosen:updated");
-                        else
+                        }else {
+                            if(pages == 'edit')
+                                $("#subkategori_id").val(0).chosen().attr('disabled', true).trigger("chosen:updated");
+
                             $("#subkategori_id").val(0).chosen().trigger("chosen:updated");
+                        }
                     }
                     else {
                         $('#id, #name').val('');
@@ -655,6 +705,7 @@ var subrekening = function () {
                 else
                 {
                     $('#subkategori_id').empty()
+                    $('#id, #name').prop('readonly', false);
                     subrekening.subcategoryList(grup_id, $(this).val(), subkategori_id, false)
                 }
             });
@@ -697,11 +748,11 @@ var subrekening = function () {
     };
 }();
 
-function subrekeningRequest(company_id, grup_id, kategori_id, subkategori_id, ids)
+function subrekeningRequest(company_id, kategori_pajak, grup_id, kategori_id, subkategori_id, ids)
 {    
     $.ajax({
         type: 'GET',
-        url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/' + grup_id + '/' + kategori_id + '/' + subkategori_id + '/' + ids + '/get',
+        url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/pajak/'+ kategori_pajak +'/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id +'/uuid/' + ids,
         dataType: 'json',
         headers: {
             'Accept' : 'application/json',
@@ -729,6 +780,7 @@ function subrekeningRequest(company_id, grup_id, kategori_id, subkategori_id, id
                     $('#data-grup').val(grup_id);
                     $('#data-kategori').val(kategori_id);
                     $('#data-subkategori').val(subkategori_id);
+                    $('#data-kategori-pajak').val(kategori_pajak);
                     $('#data-company').val(company_id);
                     Rats.UI.LoadAnimation.stop(spinner);
                 }
@@ -747,6 +799,13 @@ function subrekeningRequest(company_id, grup_id, kategori_id, subkategori_id, id
                     html:true
                 }, function(isConfirm) {
                     window.location = baseUrl + '/login'
+                });
+            },
+            500: function() {
+                $.gritter.add({
+                    title: 'Terjadi Kesalahan',
+                    text: 'Gagal memuat data, silahkan hubungi administrator untuk support.',
+                    class_name: 'gritter-error gritter-center'
                 });
             }
         },
