@@ -1,0 +1,25 @@
+{
+    "name": "nwidart/konfigurasi",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Konfigurasi\\Providers\\KonfigurasiServiceProvider"
+            ],
+            "aliases": {
+                
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Konfigurasi\\": ""
+        }
+    }
+}

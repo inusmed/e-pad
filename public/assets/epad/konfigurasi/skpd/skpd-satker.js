@@ -8,50 +8,6 @@ var skpd_satker = function () {
             skpd_satker.request();
         },
 
-        get: function() {
-            $.ajax({
-                type: 'GET',
-                url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/' + grup_id + '/' + kategori_id + '/' + subkategori_id + '/' + id +'/get',
-                dataType: 'json',
-                headers: {
-                    'Accept' : 'application/json',
-                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                },
-                statusCode: {
-                    200: function(responseObject) {
-                        if(responseObject.status == true) {
-                            $('#form-content').show()
-                            skpd_satker.groupList(grup_id, kategori_id, subkategori_id);
-
-                            $('#kategori-pajak-'+responseObject.data.kategori_pajak).prop('checked', true);
-
-                            if(responseObject.data.status_id == 1) {
-                                $('#status-active').prop("checked", true);
-                            }else {
-                                $('#status-inactive').prop("checked", true);
-                            }
-                            
-                            $('#id').val(grup_id + '' + kategori_id + '' + subkategori_id + '' + responseObject.data.id)
-                            $('#nama').val(responseObject.data.subrekening_nama)
-
-                            skpd_satker.eventChangeList()
-
-                            var block = skpd_satker.blocks(grup_id, kategori_id, subkategori_id)
-                            cleaveInstance = new Cleave('#id', {
-                                delimiters: ['.'],
-                                prefix: grup_id + '' + kategori_id + '' + subkategori_id,
-                                numericOnly: true,
-                                blocks: block
-                            });
-                        }
-                    },
-                    401: function(responseObject) {
-                        UnauthorizedMessages();
-                    }
-                },
-            });
-        },
-
         request: function() {
             $.fn.dataTable.ext.errMode = 'none';
             $('#tabelBidangSatuanKerja').DataTable( {
@@ -68,7 +24,7 @@ var skpd_satker = function () {
                 "lengthMenu": [ 12, 18, 25, 50, 75, 100 ],
                 "ajax" : {
                     type	: 'POST',
-                    url		:  baseApiUrl + '/konfigurasi/skpd/satuan-kerja/' + company_id + '/' + urusan_id + '/' + bidang_id + '/bidang',
+                    url		:  baseApiUrl + '/konfigurasi/skpd/satuan-kerja/' + company_id + '/urusan/' + urusan_id + '/bidang/' + bidang_id,
                     dataType: 'json',
                     headers: {
                         'Accept' : 'application/json',
@@ -159,7 +115,7 @@ function satkerRequest(company_id, urusan_id, bidang_id, id)
 {    
     $.ajax({
         type: 'GET',
-        url: baseApiUrl + '/konfigurasi/skpd/satuan-kerja/' + company_id + '/' + urusan_id + '/' + bidang_id + '/' + id + '/get',
+        url: baseApiUrl + '/konfigurasi/skpd/satuan-kerja/' + company_id + '/urusan/' + urusan_id + '/bidang/' + bidang_id + '/satker/' + id,
         dataType: 'json',
         headers: {
             'Accept' : 'application/json',
@@ -188,6 +144,14 @@ function satkerRequest(company_id, urusan_id, bidang_id, id)
             },
             401: function(responseObject) {
                 UnauthorizedMessages()
+            },
+            500: function() {
+                $.gritter.add({
+                    title: 'Terjadi Kesalahan',
+                    text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                    class_name: 'gritter-error gritter-center',
+                    time: 1000
+                });
             },
             419: function() {
                 swal({

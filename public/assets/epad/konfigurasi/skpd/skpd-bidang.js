@@ -6,142 +6,7 @@ var skpd_bidang = function () {
     return {
         init: function() {
             skpd_bidang.request();
-
-            $('#btn-edit').click(function() {
-                var dataid    = $('#data-id').val();
-                var companyid = $('#data-company').val();
-                var categorid = $('#data-kategori').val();
-                var subcategorid = $('#data-subkategori').val();
-                var groupid   = $('#data-grup').val();
-                
-                window.location = baseUrl + '/pengaturan/mata-anggaran/subrekening/' + companyid + '/' + groupid + '/' + categorid + '/' + subcategorid + '/' + dataid + '/edit'
-            });
-
-            $('#btn-delete').click(function() {
-                $('#modalView').modal('hide');
-                bootbox.confirm({
-                    message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penghapusan Data </h4><hr>\
-                        <h5>Apakah anda yakin ingin menghapus data tersebut?</h5>\
-                        Penghapusan akun rekening ini akan menghapus turunan rekening dari rekening utama yang anda hapus\
-                    </div>",
-                    buttons: {
-                        confirm: {
-                            label: "Setuju",
-                            className: "btn-danger btn-sm",
-                        },
-                        cancel: {
-                            label: "Tidak Setuju",
-                            className: "btn-primary btn-sm",
-                        }
-                    },
-                    callback: function(isConfirm) {
-                        if(isConfirm)
-                        {
-                            var dataid    = $('#data-id').val();
-                            var companyid = $('#data-company').val();
-                            var categorid = $('#data-kategori').val();
-                            var subcategorid = $('#data-subkategori').val();
-                            var groupid   = $('#data-grup').val();
-                            
-                            $.ajax({
-                                type: 'DELETE',
-                                url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening',
-                                dataType: 'json',
-                                data : {
-                                    'company_id' : companyid,
-                                    'grup_id'    : groupid,
-                                    'kategori_id': categorid,
-                                    'subkategori_id': subcategorid,
-                                    'kodeAkun'   : dataid
-                                },
-                                headers: {
-                                    'Accept' : 'application/json',
-                                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                                },
-                                beforeSend: function(){
-                                    Rats.UI.LoadAnimation.start();
-                                },
-                                statusCode: {
-                                    200: function(responseObject) {
-                                        console.log(responseObject);
-                                        if(responseObject.status == true) {
-                                            $.gritter.add({
-                                                title: 'Penghapusan data berhasil',
-                                                text: responseObject.message,
-                                                class_name: 'gritter-success gritter-center'
-                                            });
-
-                                            $('#tableSubRekening').dataTable().fnDestroy();
-                                            skpd_bidang.request();
-                                        }
-                                    },
-                                    401: function() {
-                                        UnauthorizedMessages();
-                                    },
-                                    500: function() {
-                                        $.gritter.add({
-                                            title: 'Terjadi Kesalahan',
-                                            text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
-                                            class_name: 'gritter-error gritter-center'
-                                        });
-                                    }
-                                },
-                                error: function() {
-                                    Rats.UI.LoadAnimation.stop(spinner);
-                                }
-                            });
-                        }else {
-                            $('#modalView').modal('show');
-                        }
-                    }
-                });
-            });
         },
-
-        get: function() {
-            $.ajax({
-                type: 'GET',
-                url: baseApiUrl + '/pengaturan/mata-anggaran/subrekening/' + company_id + '/' + grup_id + '/' + kategori_id + '/' + subkategori_id + '/' + id +'/get',
-                dataType: 'json',
-                headers: {
-                    'Accept' : 'application/json',
-                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                },
-                statusCode: {
-                    200: function(responseObject) {
-                        if(responseObject.status == true) {
-                            $('#form-content').show()
-                            skpd_bidang.groupList(grup_id, kategori_id, subkategori_id);
-
-                            $('#kategori-pajak-'+responseObject.data.kategori_pajak).prop('checked', true);
-
-                            if(responseObject.data.status_id == 1) {
-                                $('#status-active').prop("checked", true);
-                            }else {
-                                $('#status-inactive').prop("checked", true);
-                            }
-                            
-                            $('#id').val(grup_id + '' + kategori_id + '' + subkategori_id + '' + responseObject.data.id)
-                            $('#nama').val(responseObject.data.subrekening_nama)
-
-                            skpd_bidang.eventChangeList()
-
-                            var block = skpd_bidang.blocks(grup_id, kategori_id, subkategori_id)
-                            cleaveInstance = new Cleave('#id', {
-                                delimiters: ['.'],
-                                prefix: grup_id + '' + kategori_id + '' + subkategori_id,
-                                numericOnly: true,
-                                blocks: block
-                            });
-                        }
-                    },
-                    401: function(responseObject) {
-                        UnauthorizedMessages();
-                    }
-                },
-            });
-        },
-
         request: function() {
             $.fn.dataTable.ext.errMode = 'none';
             $('#tabelBidangSatuanKerja').DataTable( {
@@ -172,7 +37,18 @@ var skpd_bidang = function () {
                             $('#tabelBidangSatuanKerja').dataTable().fnDestroy();
                             $('#tabelBidangSatuanKerja').hide();
                             UnAvailableCloudData(JSON.parse(responseObject.responseText).message)
+                        },
+                        500: function() {
+                            $.gritter.add({
+                                title: 'Terjadi Kesalahan',
+                                text: 'Terjadi kesalahan sistem. silahkan hubungi admin untuk mendapatkan support',
+                                class_name: 'gritter-error gritter-center',
+                                time : 1000
+                            });
                         }
+                    },
+                    error: function() {
+                        Rats.UI.LoadAnimation.stop(spinner);
                     },
                     dataSrc	: function ( response ) {
                         Rats.UI.LoadAnimation.stop(spinner);
@@ -244,7 +120,7 @@ var skpd_bidang = function () {
                             }
                             else {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <a href='"+baseUrl+"/konfigurasi/skpd/satuan-kerja/"+full['company_id']+"/"+full['urusan_id']+"/"+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='Bidang "+full['nama']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
+                                    <a href='"+baseUrl+"/konfigurasi/skpd/satuan-kerja/"+full['company_id']+"?urusan_id="+full['urusan_id']+"&bidang_id="+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='Bidang "+full['nama']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
                                 </div>";
                             }
                         }
@@ -259,7 +135,7 @@ function bidangRequest(company_id, urusan_id, id)
 {    
     $.ajax({
         type: 'GET',
-        url: baseApiUrl + '/konfigurasi/skpd/bidang/' + company_id + '/' + urusan_id + '/' + id + '/get',
+        url: baseApiUrl + '/konfigurasi/skpd/bidang/' + company_id + '/urusan/' + urusan_id + '/bidang/' + id,
         dataType: 'json',
         headers: {
             'Accept' : 'application/json',
@@ -287,6 +163,14 @@ function bidangRequest(company_id, urusan_id, id)
             },
             401: function(responseObject) {
                 UnauthorizedMessages()
+            },
+            500: function() {
+                $.gritter.add({
+                    title: 'Terjadi Kesalahan',
+                    text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                    class_name: 'gritter-error gritter-center',
+                    time: 1000
+                });
             },
             419: function() {
                 swal({

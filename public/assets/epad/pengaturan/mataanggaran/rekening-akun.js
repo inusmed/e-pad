@@ -102,7 +102,7 @@ var rekening = function () {
                                                     title: 'Penghapusan data berhasil',
                                                     text: responseObject.message,
                                                     class_name: 'gritter-success gritter-center',
-                                                    time : 3000
+                                                    time : 1000
                                                 });
     
                                                 $('#tabelAkunRekening').dataTable().fnDestroy();
@@ -279,7 +279,7 @@ var rekening = function () {
                                             title: 'Terjadi Kesalahan',
                                             text: 'Periksa kembali data yang anda masukkan, perhatikan pesan error pada sistem',
                                             class_name: 'gritter-warning gritter-center',
-                                            time : 3000
+                                            time : 1000
                                         });
 
                                         Rats.UI.LoadAnimation.stop(spinner);
@@ -289,7 +289,7 @@ var rekening = function () {
                                             title: 'Terjadi Kesalahan',
                                             text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
                                             class_name: 'gritter-error gritter-center',
-                                            time : 3000
+                                            time : 1000
                                         });
                                     }
                                 },
@@ -393,7 +393,7 @@ var rekening = function () {
                                             title: 'Terjadi Kesalahan',
                                             text: 'Periksa kembali data yang anda masukkan, perhatikan pesan error pada sistem',
                                             class_name: 'gritter-warning gritter-center',
-                                            time: 3000
+                                            time: 1000
                                         });
                                         Rats.UI.LoadAnimation.stop(spinner);
                                     },
@@ -402,7 +402,7 @@ var rekening = function () {
                                             title: 'Terjadi Kesalahan',
                                             text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
                                             class_name: 'gritter-error gritter-center',
-                                            time: 3000
+                                            time: 1000
                                         });
                                     },
                                     401: function() {
