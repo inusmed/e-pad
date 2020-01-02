@@ -63,6 +63,8 @@ Route::group(['prefix' => 'v1/pengaturan'], function () {
                 Route::delete('jenis-pendapatan', 'Pendapatan@destroy');
                 Route::patch('jenis-pendapatan/{company}/pajak/{pajak}/ketetapan/{ketetapan_id}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/rekening/{rekening}/pendapatan/{pendapatan}', 'Pendapatan@update');
                 Route::get('jenis-pendapatan/{company}/pajak/{pajak}/ketetapan/{ketetapan_id}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/rekening/{rekening}/pendapatan/{pendapatan}', 'Pendapatan@get');
+           
+                Route::post('grup-pendapatan', 'GrupPendapatan@datatable');
             });
         });
     });

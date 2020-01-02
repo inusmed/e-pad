@@ -424,10 +424,10 @@
                             <b class="arrow"></b>
                         </li>
     
-                        <li class="{{ (request()->is('pengaturan/grup-attribute-pendapatan')) ? 'active' : '' }} {{ (request()->is('pengaturan/grup-attribute-pendapatan/*')) ? 'active' : '' }}">
-                            <a href="{{ url('pengaturan/grup-attribute-pendapatan') }}">
+                        <li class="{{ (request()->is('pengaturan/grup-pendapatan')) ? 'active' : '' }} {{ (request()->is('pengaturan/grup-pendapatan/*')) ? 'active' : '' }}">
+                            <a href="{{ url('pengaturan/grup-pendapatan') }}">
                                 <i class="menu-icon fa fa-caret-right"></i>
-                                <small> Grup Omzet</small>
+                                <small> Grup Pendapatan</small>
                             </a>
                             <b class="arrow"></b>
                         </li>

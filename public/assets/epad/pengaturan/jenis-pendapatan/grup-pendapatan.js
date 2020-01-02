@@ -1,12 +1,12 @@
-var grup_omzet = function () {
+var grup_pendapatan = function () {
     return {
         init: function() {
-            grup_omzet.request();
+            grup_pendapatan.request();
         },
 
         request: function() {
             $.fn.dataTable.ext.errMode = 'none';
-            $('#tabelGrupOmzet').DataTable( {
+            $('#tabelGrupPendapatan').DataTable( {
                 "bInfo": true,
                 "bFilter": true,
                 "bAutoWidth": true,
@@ -21,7 +21,7 @@ var grup_omzet = function () {
                 "lengthMenu": [ 10, 15, 25, 50, 75, 100 ],
                 "ajax" : {
                     type	: 'POST',
-                    url     :  baseApiUrl + '/pengaturan/grup-attribute-pendapatan',
+                    url     :  baseApiUrl + '/pengaturan/grup-pendapatan',
                     dataType: 'json',
                     headers: {
                         'Accept' : 'application/json',
@@ -32,8 +32,8 @@ var grup_omzet = function () {
                             UnauthorizedMessages()
                         },
                         522: function(responseObject) {
-                            $('#tabelGrupOmzet').dataTable().fnDestroy();
-                            $('#tabelGrupOmzet').hide();
+                            $('#tabelGrupPendapatan').dataTable().fnDestroy();
+                            $('#tabelGrupPendapatan').hide();
                             UnAvailableCloudData(JSON.parse(responseObject.responseText).message)
                         }
                     },
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if(responseObject.ping == true) {
                     switch (pages) {
                         case 'show':
-                            grup_omzet.init()
+                            grup_pendapatan.init()
                         break;
                     }
                 }

@@ -40,6 +40,8 @@ Route::group(['middleware' => 'language'], function () {
                 Route::get('jenis-pendapatan/create', 'Pendapatan@create');
                 Route::get('jenis-pendapatan/show/{company_id}', 'Pendapatan@show');
                 Route::get('jenis-pendapatan/edit/{company_id}', 'Pendapatan@edit');
+
+                Route::get('grup-pendapatan', 'GrupPendapatan@index');
             });
         });
     });
