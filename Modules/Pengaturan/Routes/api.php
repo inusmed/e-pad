@@ -65,6 +65,13 @@ Route::group(['prefix' => 'v1/pengaturan'], function () {
                 Route::get('jenis-pendapatan/{company}/pajak/{pajak}/ketetapan/{ketetapan_id}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/rekening/{rekening}/pendapatan/{pendapatan}', 'Pendapatan@get');
            
                 Route::post('grup-pendapatan', 'GrupPendapatan@datatable');
+                Route::post('grup-pendapatan/list-pendapatan', 'GrupPendapatan@lists');
+
+                Route::post('tarif-omzet', 'TarifOmzet@datatable');
+                Route::post('tarif-omzet/store', 'TarifOmzet@store');
+                Route::delete('tarif-omzet', 'TarifOmzet@destroy');
+                Route::get('tarif-omzet/{company_id}/{uuid}', 'TarifOmzet@get');
+                Route::patch('tarif-omzet/{company_id}/{uuid}', 'TarifOmzet@update');
             });
         });
     });

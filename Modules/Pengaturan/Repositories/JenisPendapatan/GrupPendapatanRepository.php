@@ -71,4 +71,43 @@ class GrupPendapatanRepository
         ], 522);
     }
 
+    public function getListdatatable($metodeHitung)
+    {
+        $data     = $this->model->where('status', 1)
+                        ->orderBy('subkategori_id', 'asc')
+                        ->orderBy('subrekening_id', 'asc')
+                        ->orderBy('rekening_id', 'asc')
+                        ->get();
+
+        if($data->count() > 0)
+        {
+            foreach($data as $dt)
+            {
+                if($dt->fkMetapendapatan['reff_metode_hitung_id'] == $metodeHitung )
+                {
+                    $jenisPendapatan[] = [
+                        'company_id'  => $dt->company_id,
+                        'kategori_pajak' => $dt->kategori_pajak_id,
+                        'reff_pajak'   => $dt->reff_pajak_id,
+                        'grup_id'  => $dt->grup_id,
+                        'kategori_id'  => $dt->kategori_id,
+                        'subkategori_id'  => $dt->subkategori_id,
+                        'subrekening_id'  => $dt->subrekening_id,
+                        'rekening_id'     => $dt->rekening_id,
+                        'id'              => $dt->id,
+                        'kode'            => $dt->kode,
+                        'nama'            => $dt['nama'],
+                    ];
+                }
+            }
+
+            return DataTables::of($jenisPendapatan)->make(true);
+        }
+
+        return response()->json([
+            'status'    => false,
+            'message'   => 'Data tidak ditemukan, masukkan data jenis pendapatan terlebih dahulu pada menu Master Rekening -> Jenis Pendapatan'
+        ], 522);
+    }
+
 }

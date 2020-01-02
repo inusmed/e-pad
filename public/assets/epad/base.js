@@ -47,7 +47,7 @@ function ping()
         type:'GET',
         url: baseApiUrl + '/ping-server',
         beforeSend: function() {
-
+            
         },
         statusCode: {
             200: function(responseObject) {

@@ -42,6 +42,11 @@ Route::group(['middleware' => 'language'], function () {
                 Route::get('jenis-pendapatan/edit/{company_id}', 'Pendapatan@edit');
 
                 Route::get('grup-pendapatan', 'GrupPendapatan@index');
+
+                Route::get('tarif-omzet', 'TarifOmzet@index');
+                Route::get('tarif-omzet/create', 'TarifOmzet@create');
+                Route::get('tarif-omzet/filter/{company}', 'TarifOmzet@filter');
+                Route::get('tarif-omzet/edit/{company}/{uuid}', 'TarifOmzet@edit');
             });
         });
     });

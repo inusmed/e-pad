@@ -18,4 +18,16 @@ class GrupPendapatan extends Controller
     {
         return $grupPendapatanRepository->datatable();
     }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function lists(GrupPendapatanRepository $grupPendapatanRepository)
+    {   
+        $metodeHitung = request('metode_hitung');
+        
+        return $grupPendapatanRepository->getListdatatable($metodeHitung);
+    }
 }

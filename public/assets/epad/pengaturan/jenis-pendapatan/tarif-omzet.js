@@ -67,9 +67,14 @@ var tarif_omzet = function () {
                                             class_name: 'gritter-success gritter-center'
                                         });
 
+                                        var uri = '?kategori_pajak_id='+resp.kategori_pajak_id+'&ketetapan_pajak='+resp.reff_pajak_id+'&grup_id='+resp.grup_id;
+                                        uri = uri + '&kategori_id='+resp.kategori_id+'&subkategori_id='+resp.subkategori_id+'&subrekening_id='+resp.subrekening_id+'&rekening_id='+resp.rekening_id+'&pendapatan_id='+resp.pendapatan_id
+
+                                        localStorage.setItem('label_jenis_pendapatan', resp.nama)
+
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/tarif-omzet'
-                                        }, 1000);
+                                            window.location = baseUrl + '/pengaturan/tarif-omzet/filter/' + uri
+                                        }, 1500);
                                     },
                                     401: function(responseObject) {
                                         UnauthorizedMessages();
@@ -144,7 +149,7 @@ var tarif_omzet = function () {
         edit: function() {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl + '/pengaturan/tarif-omzet/' + company_id + '/' + uuid + '/get',
+                url: baseApiUrl + '/pengaturan/tarif-omzet/' + company_id + '/' + uuid,
                 dataType: 'json',
                 headers: {
                     'Accept' : 'application/json',
@@ -192,15 +197,30 @@ var tarif_omzet = function () {
                             Rats.UI.LoadAnimation.stop(spinner);
                         }
                     },
+                    500: function() {
+                        $.gritter.add({
+                            title: 'Terjadi Kesalahan',
+                            text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                            time : 2000,
+                            class_name: 'gritter-error gritter-center'
+                        });
+
+                        setTimeout(function(){
+                            window.location = baseUrl + '/pengaturan/tarif-omzet'
+                        }, 1500);
+                    },
                     401: function(responseObject) {
                         UnauthorizedMessages();
                     }
                 },
+                error: function() {
+                    Rats.UI.LoadAnimation.stop(spinner);
+                }
             });
 
             $('#btn-submit-edit').click(function() {
                 bootbox.confirm({
-                    message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penambahan Data </h4><hr>\
+                    message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Perubahan Data </h4><hr>\
                         <h5>Apakah anda yakin ingin mengedit data tersebut?</h5>\
                     </div>",
                     buttons: {
@@ -248,8 +268,13 @@ var tarif_omzet = function () {
                                             class_name: 'gritter-success gritter-center'
                                         });
 
+                                        var uri = '?kategori_pajak_id='+resp.kategori_pajak_id+'&ketetapan_pajak='+resp.reff_pajak_id+'&grup_id='+resp.grup_id;
+                                        uri = uri + '&kategori_id='+resp.kategori_id+'&subkategori_id='+resp.subkategori_id+'&subrekening_id='+resp.subrekening_id+'&rekening_id='+resp.rekening_id+'&pendapatan_id='+resp.pendapatan_id
+
+                                        localStorage.setItem('label_jenis_pendapatan', resp.nama)
+
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/tarif-omzet'
+                                            window.location = baseUrl + '/pengaturan/tarif-omzet/filter/' +resp.company_id + uri
                                         }, 1000);
                                     },
                                     401: function(responseObject) {
@@ -306,8 +331,21 @@ var tarif_omzet = function () {
                             });
                         }
                     }
+                }).find('.modal-content').css({
+                    'margin-top': function (){
+                        var w = $( window ).height();
+                        var b = $(".modal-dialog").height();
+                        // should not be (w-h)/2
+                        var h = ((w-b)/2) - 200;
+                        return h+"px";
+                    }
                 });
             });
+        },
+
+        filter: function() {
+            jenis_pendapatan(company_id, kategori_pajak, reff_pajak, grup_id, kategori_id, subkategori_id, subrekening_id, rekening_id, id, localStorage.getItem('label_jenis_pendapatan'))
+            tarif_omzet.eventList();
         },
 
         search: function(company_id, kategori_pajak, reff_pajak, grup_id, kategori_id, subkategori_id, subrekening_id, rekening_id, id) {
@@ -439,7 +477,7 @@ var tarif_omzet = function () {
 
         eventList: function() {
             $('#btn-jenis-pendapatan').click(function() {
-                $('#modalViewJenisPendapatan').modal('show')
+                $.fn.dataTable.ext.errMode = 'throw';
                 $('#tabelJenisPendapatan').DataTable( {
                     "bInfo": true,
                     "bFilter": true,
@@ -455,7 +493,7 @@ var tarif_omzet = function () {
                     "lengthMenu": [ 8, 15, 25, 50, 75, 100 ],
                     "ajax" : {
                         type	: 'POST',
-                        url     :  baseApiUrl + '/pengaturan/grup-attribute-pendapatan/jenis-pendapatan',
+                        url     :  baseApiUrl + '/pengaturan/grup-pendapatan/list-pendapatan',
                         data    : {
                             'metode_hitung'      : 2
                         },
@@ -482,10 +520,14 @@ var tarif_omzet = function () {
                         dataSrc	: function ( response ) {
                             Rats.UI.LoadAnimation.stop(spinner);
                             if(response.data) {
+                                $('#modalViewJenisPendapatan').modal('show')
                                 $('#tabelTarifOmzet').show();
                                 Rats.UI.LoadAnimation.stop(spinner);
                                 return response.data
                             }
+                        },
+                        error: function() {
+                            Rats.UI.LoadAnimation.stop(spinner);
                         }
                     },
                     "columns": [
@@ -567,6 +609,8 @@ function jenis_pendapatan(company_id, kategori_pajak, reff_pajak, grup_id, kateg
     $('#akun_id').val(id)
     $('#kode_akun').val(kode_akun)
 
+    localStorage.setItem('label_jenis_pendapatan', decodeURIComponent(nama))
+
     var namaRekeningDenda = grup_id + '.' + kategori_id+ '.' + subkategori_id + '.'+ subrekening_id + '.'+ rekening_id + '. ' + decodeURIComponent(nama);
     $('#jenis_pendapatan').val(namaRekeningDenda)
 
@@ -575,14 +619,38 @@ function jenis_pendapatan(company_id, kategori_pajak, reff_pajak, grup_id, kateg
 
 function edit_tarif(company_id, uuid)
 {
-    window.location = baseUrl + '/pengaturan/tarif-omzet/' + company_id + '/' + uuid + '/edit'
+    window.location = baseUrl + '/pengaturan/tarif-omzet/edit/' + company_id + '/' + uuid
 }
 
 function hapus_tarif(company_id, uuid)
 {
+    $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+        $('#captImg img').attr('src', data);
+    });
+
     bootbox.confirm({
         message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penghapusan Data </h4><hr>\
             <h5>Apakah anda yakin ingin menghapus data tersebut?</h5>\
+                Data tarif omzet yang dihapus tidak akan muncul pada menu Pendataan Wajib Pajak\
+            <br><br>\
+            <div class='form-login'>\
+                <div class='form-group' id='form-captcha'>\
+                    <div style='display: flex'>\
+                        <div style='flex: 3;'>\
+                            <input type='text' class='form-control' name='captcha' id='captcha' placeholder='Captcha' value='' maxlength='6' autocomplete='off'>\
+                            <span class='text-danger'>masukkan captha untuk konfirmasi</span>\
+                        </div>\
+                        <div style='flex: 1;'>\
+                            <a href='javascript:void(0);' class='refreshCaptcha'>\
+                                <img src='"+baseUrl+'/assets/images/icons/refresh.png'+"' style='padding:5px 0 0 5px' alt='load'>\
+                            </a>\
+                        </div>\
+                        <div style='flex: 1;'>\
+                            <p id='captImg'><img></p>\
+                        </div>\
+                    </div>\
+                </div>\
+            </div>\
         </div>",
         buttons: {
             confirm: {
@@ -596,46 +664,114 @@ function hapus_tarif(company_id, uuid)
         },
         callback: function(isConfirm) {
             if(isConfirm) {
-                $.ajax({
-                    type: 'DELETE',
-                    url: baseApiUrl + '/pengaturan/tarif-omzet/',
-                    dataType: 'json',
-                    data : {
-                        'company_id'    : company_id,
-                        'uuid'          : uuid
-                    },
-                    beforeSend: function() {
-                        spinner = Rats.UI.LoadAnimation.start()
-                    },
-                    headers: {
-                        'Accept' : 'application/json',
-                        'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                    },
-                    statusCode: {
-                        200: function(responseObject) {
-                            if(responseObject.status == true) {
-                                $.gritter.add({
-                                    title: 'Penghapusan Berhasil',
-                                    text: 'Penghapusan data tarif omzet berhasil. Silahkan menunggu beberapa saat',
-                                    time: 2000,
-                                    class_name: 'gritter-success gritter-center'
-                                });
+                var captcha   = $("input[name=captcha]").val();
 
-                                $('#tabelTarifOmzet').dataTable().fnDestroy();
-                                $('#tabelTarifOmzet').hide();
-                                
-                                var data = responseObject.data
-                                tarif_omzet.search(data.company_id, data.kategori_pajak, data.reff_pajak, data.grup_id, data.kategori_id, data.subkategori_id, data.subrekening_id, data.rekening_id, data.pendapatan_id)
+                if(captcha != "" && captcha.length == 6)
+                {
+                    if(isConfirm)
+                    {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: baseApiUrl + '/pengaturan/tarif-omzet',
+                            dataType: 'json',
+                            data : {
+                                'company_id'    : company_id,
+                                'uuid'          : uuid,
+                                captcha         : captcha
+                            },
+                            beforeSend: function() {
+                                spinner = Rats.UI.LoadAnimation.start()
+                            },
+                            headers: {
+                                'Accept' : 'application/json',
+                                'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
+                            },
+                            statusCode: {
+                                200: function(responseObject) {
+                                    if(responseObject.status == true) {
+                                        $.gritter.add({
+                                            title: 'Penghapusan Berhasil',
+                                            text: 'Penghapusan data tarif omzet berhasil. Silahkan menunggu beberapa saat',
+                                            time: 2000,
+                                            class_name: 'gritter-success gritter-center'
+                                        });
+        
+                                        $('#tabelTarifOmzet').dataTable().fnDestroy();
+                                        $('#tabelTarifOmzet').hide();
+                                        
+                                        var data = responseObject.data
+                                        tarif_omzet.search(data.company_id, data.kategori_pajak, data.reff_pajak, data.grup_id, data.kategori_id, data.subkategori_id, data.subrekening_id, data.rekening_id, data.pendapatan_id)
+                                        Rats.UI.LoadAnimation.stop(spinner);
+                                    }
+                                },
+                                422: function() {
+                                    $('#form-captcha').addClass('has-error')
+                                    $('#captcha').addClass('inputError');
+                                    $('#captcha').val('');
+    
+                                    $.gritter.add({
+                                        title: 'Terjadi Kesalahan',
+                                        text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                        class_name: 'gritter-warning gritter-center',
+                                        time: 1000
+                                    });
+                                },
+                                401: function(responseObject) {
+                                    UnauthorizedMessages();
+                                },
+                                500: function() {
+                                    $.gritter.add({
+                                        title: 'Terjadi Kesalahan',
+                                        text: 'Terjadi kesalahan sistem, data gagal di dihapus. silahkan hubungi admin untuk mendapatkan support',
+                                        class_name: 'gritter-error gritter-center'
+                                    });
+                                }
+                            },
+                            error: function() {
                                 Rats.UI.LoadAnimation.stop(spinner);
                             }
-                        },
-                        401: function(responseObject) {
-                            UnauthorizedMessages();
-                        }
-                    },
-                });
+                        });
+                    }
+                }else
+                {
+                    if(isConfirm)
+                    {
+                        $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                            $('#captImg img').attr('src', data);
+                        });
+
+                        $('#form-captcha').addClass('has-error')
+                        $('#captcha').addClass('inputError');
+                        $('#captcha').val('');
+
+                        $.gritter.add({
+                            title: 'Terjadi Kesalahan',
+                            text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                            class_name: 'gritter-warning gritter-center',
+                            time: 1500
+                        });
+
+                        return false;
+                    }
+                }
             }
         }
+    }).find('.modal-content').css({
+        'margin-top': function (){
+            var w = $( window ).height();
+            var b = $(".modal-dialog").height();
+            // should not be (w-h)/2
+            var h = ((w-b)/2) - 200;
+            return h+"px";
+        }
+    });
+
+    $('.refreshCaptcha').on('click', function(e){
+        e.preventDefault();
+        
+        $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+            $('#captImg img').attr('src', data);
+        });
     });
 }
 
@@ -710,6 +846,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         break;
                         case 'edit':
                             tarif_omzet.edit()
+                        break;
+                        case 'filter':
+                            tarif_omzet.filter()
                         break;
                     }
                 }
