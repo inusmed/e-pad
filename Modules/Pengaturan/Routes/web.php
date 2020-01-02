@@ -47,6 +47,11 @@ Route::group(['middleware' => 'language'], function () {
                 Route::get('tarif-omzet/create', 'TarifOmzet@create');
                 Route::get('tarif-omzet/filter/{company}', 'TarifOmzet@filter');
                 Route::get('tarif-omzet/edit/{company}/{uuid}', 'TarifOmzet@edit');
+
+                Route::get('tarif-usaha', 'TarifUsaha@index');
+                Route::get('tarif-usaha/create', 'TarifUsaha@create');
+                Route::get('tarif-usaha/filter/{company}', 'TarifUsaha@filter');
+                Route::get('tarif-usaha/edit/{company}/{uuid}', 'TarifUsaha@edit');
             });
         });
     });

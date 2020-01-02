@@ -2,7 +2,7 @@
 
 @extends('layouts.admin')
 
-@section('title', 'Master Tarif Omzet')
+@section('title', 'Master Tarif Usaha')
 
 @section('content')
     <!-- BREADCRUMB -->
@@ -15,7 +15,7 @@
                 <a href="javascript:void(0)"> Rekening </a>
             </li>
             
-            <li class="active"> Tarif Omzet </li>
+            <li class="active"> Tarif Usaha </li>
         </ul>
         <!-- /.breadcrumb -->
 
@@ -36,7 +36,7 @@
             <h1>
                 Jenis Pendapatan
                 <small>
-                    <i class="ace-icon fa fa-angle-double-right"></i><span id="txt_judul"> Tarif Omzet</span>
+                    <i class="ace-icon fa fa-angle-double-right"></i><span id="txt_judul"> Tarif Usaha</span>
                 </small>
             </h1>
         </div>
@@ -86,10 +86,10 @@
                     <div class="widget-box widget-color-dark light-border">
 
                         <div class="widget-header">
-                            <h6 class="widget-title">Daftar Tarif Omzet</h6>
+                            <h6 class="widget-title">Daftar Tarif Usaha</h6>
 
                             <div class="widget-toolbar">
-                                <a href="{{ url('pengaturan/tarif-omzet/create') }}" class="btn btn-xs btn-danger bigger">
+                                <a href="{{ url('pengaturan/tarif-usaha/create') }}" class="btn btn-xs btn-danger bigger">
                                     <i class="ace-icon fa fa-plus"></i>
                                     Tambah
                                 </a>
@@ -203,7 +203,7 @@
 
     <script src="{{ url('/assets/epad/base.js') }}"></script>
 
-    <script src="{{ url('/assets/epad/pengaturan/jenis-pendapatan/tarif-omzet.js') }}"></script>
+    <script src="{{ url('/assets/epad/pengaturan/jenis-pendapatan/tarif-usaha.js') }}"></script>
 @endpush
 
 @push('scripts')

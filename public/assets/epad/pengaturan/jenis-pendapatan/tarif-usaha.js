@@ -6,6 +6,7 @@ var tarif_usaha = function () {
         },
 
         create: function() {
+            $('#grupTarif-1').prop('checked', true);
             $('#periodeTarif-1').prop('checked', true);
 
             $('#btn-submit-create').click(function() {
@@ -57,6 +58,7 @@ var tarif_usaha = function () {
                                 },
                                 statusCode: {
                                     200: function(responseObject) {
+                                        var resp = responseObject.data
                                         $.gritter.add({
                                             title: 'Penambahan Data Berhasil',
                                             text: 'Tambah Data tarif usaha Berhasil. Silahkan menunggu beberapa saat',
@@ -64,9 +66,14 @@ var tarif_usaha = function () {
                                             class_name: 'gritter-success gritter-center'
                                         });
 
+                                        var uri = resp.company_id + '?kategori_pajak_id='+resp.kategori_pajak_id+'&ketetapan_pajak='+resp.reff_pajak_id+'&grup_id='+resp.grup_id;
+                                        uri = uri + '&kategori_id='+resp.kategori_id+'&subkategori_id='+resp.subkategori_id+'&subrekening_id='+resp.subrekening_id+'&rekening_id='+resp.rekening_id+'&pendapatan_id='+resp.pendapatan_id
+
+                                        localStorage.setItem('label_jenis_pendapatan', resp.nama)
+
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/tarif-usaha'
-                                        }, 1000);
+                                            window.location = baseUrl + '/pengaturan/tarif-usaha/filter/' + uri
+                                        }, 1500);
                                     },
                                     401: function(responseObject) {
                                         UnauthorizedMessages();
@@ -131,6 +138,14 @@ var tarif_usaha = function () {
                             });
                         }
                     }
+                }).find('.modal-content').css({
+                    'margin-top': function (){
+                        var w = $( window ).height();
+                        var b = $(".modal-dialog").height();
+                        // should not be (w-h)/2
+                        var h = ((w-b)/2) - 200;
+                        return h+"px";
+                    }
                 });
             });
 
@@ -141,7 +156,7 @@ var tarif_usaha = function () {
         edit: function() {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl + '/pengaturan/tarif-usaha/' + company_id + '/' + uuid + '/get',
+                url: baseApiUrl + '/pengaturan/tarif-usaha/' + company_id + '/' + uuid,
                 dataType: 'json',
                 headers: {
                     'Accept' : 'application/json',
@@ -154,8 +169,10 @@ var tarif_usaha = function () {
                             $('#nama').val(data.nama)
                             $('#persentase').val(data.persentase)
                             $('#satuan').val(data.satuan)
+                            $('#nominal').val(data.nilai)
                             $('#keterangan').val(data.keterangan)
 
+                            $('#grupTarif-'+data.tarif_group_id).prop('checked', true);
                             $('#periodeTarif-'+data.reff_periode_tarif_id).prop('checked', true);
 
                             var kode_akun = data.grup_id + '.' + data.kategori_id+ '.' + data.subkategori_id + '.'+ data.subrekening_id + '.'+ data.rekening_id + '.' + data.id
@@ -187,15 +204,30 @@ var tarif_usaha = function () {
                             Rats.UI.LoadAnimation.stop(spinner);
                         }
                     },
+                    500: function() {
+                        $.gritter.add({
+                            title: 'Terjadi Kesalahan',
+                            text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
+                            time : 2000,
+                            class_name: 'gritter-error gritter-center'
+                        });
+
+                        setTimeout(function(){
+                            window.location = baseUrl + '/pengaturan/tarif-usaha'
+                        }, 1500);
+                    },
                     401: function(responseObject) {
                         UnauthorizedMessages();
                     }
                 },
+                error: function() {
+                    Rats.UI.LoadAnimation.stop(spinner);
+                }
             });
 
             $('#btn-submit-edit').click(function() {
                 bootbox.confirm({
-                    message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penambahan Data </h4><hr>\
+                    message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Perubahan Data </h4><hr>\
                         <h5>Apakah anda yakin ingin mengedit data tersebut?</h5>\
                     </div>",
                     buttons: {
@@ -218,7 +250,9 @@ var tarif_usaha = function () {
                                     'nama'              : $('#nama').val(),
                                     'persentase'        : $('#persentase').val(),
                                     'satuan'            : $('#satuan').val(),
+                                    'nominal'           : $('#nominal').val(),
                                     'keterangan'        : $('#keterangan').val(),
+                                    'grupTarif'         : $("input[type='radio'][name='grupTarif']:checked").val(),
                                     'periodeTarif'      : $("input[type='radio'][name='periodeTarif']:checked").val(),
                                     'status'            : $("input[name='status']:checked").val(),
                                 },
@@ -241,8 +275,13 @@ var tarif_usaha = function () {
                                             class_name: 'gritter-success gritter-center'
                                         });
 
+                                        var uri = '?kategori_pajak_id='+resp.kategori_pajak_id+'&ketetapan_pajak='+resp.reff_pajak_id+'&grup_id='+resp.grup_id;
+                                        uri = uri + '&kategori_id='+resp.kategori_id+'&subkategori_id='+resp.subkategori_id+'&subrekening_id='+resp.subrekening_id+'&rekening_id='+resp.rekening_id+'&pendapatan_id='+resp.pendapatan_id
+
+                                        localStorage.setItem('label_jenis_pendapatan', resp.nama)
+
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/tarif-usaha'
+                                            window.location = baseUrl + '/pengaturan/tarif-usaha/filter/' +resp.company_id + uri
                                         }, 1000);
                                     },
                                     401: function(responseObject) {
@@ -299,8 +338,21 @@ var tarif_usaha = function () {
                             });
                         }
                     }
+                }).find('.modal-content').css({
+                    'margin-top': function (){
+                        var w = $( window ).height();
+                        var b = $(".modal-dialog").height();
+                        // should not be (w-h)/2
+                        var h = ((w-b)/2) - 200;
+                        return h+"px";
+                    }
                 });
             });
+        },
+
+        filter: function() {
+            jenis_pendapatan(company_id, kategori_pajak, reff_pajak, grup_id, kategori_id, subkategori_id, subrekening_id, rekening_id, id, localStorage.getItem('label_jenis_pendapatan'))
+            tarif_usaha.eventList();
         },
 
         search: function(company_id, kategori_pajak, reff_pajak, grup_id, kategori_id, subkategori_id, subrekening_id, rekening_id, id) {
@@ -426,7 +478,7 @@ var tarif_usaha = function () {
 
         eventList: function() {
             $('#btn-jenis-pendapatan').click(function() {
-                $('#modalViewJenisPendapatan').modal('show')
+                $.fn.dataTable.ext.errMode = 'throw';
                 $('#tabelJenisPendapatan').DataTable( {
                     "bInfo": true,
                     "bFilter": true,
@@ -442,7 +494,7 @@ var tarif_usaha = function () {
                     "lengthMenu": [ 8, 15, 25, 50, 75, 100 ],
                     "ajax" : {
                         type	: 'POST',
-                        url     :  baseApiUrl + '/pengaturan/grup-attribute-pendapatan/jenis-pendapatan',
+                        url     :  baseApiUrl + '/pengaturan/grup-pendapatan/list-pendapatan',
                         data    : {
                             'metode_hitung'      : 3
                         },
@@ -469,10 +521,14 @@ var tarif_usaha = function () {
                         dataSrc	: function ( response ) {
                             Rats.UI.LoadAnimation.stop(spinner);
                             if(response.data) {
+                                $('#modalViewJenisPendapatan').modal('show')
                                 $('#tabelTarifUsaha').show();
                                 Rats.UI.LoadAnimation.stop(spinner);
                                 return response.data
                             }
+                        },
+                        error: function() {
+                            Rats.UI.LoadAnimation.stop(spinner);
                         }
                     },
                     "columns": [
@@ -554,6 +610,8 @@ function jenis_pendapatan(company_id, kategori_pajak, reff_pajak, grup_id, kateg
     $('#akun_id').val(id)
     $('#kode_akun').val(kode_akun)
 
+    localStorage.setItem('label_jenis_pendapatan', decodeURIComponent(nama))
+
     var namaRekeningDenda = grup_id + '.' + kategori_id+ '.' + subkategori_id + '.'+ subrekening_id + '.'+ rekening_id + '. ' + decodeURIComponent(nama);
     $('#jenis_pendapatan').val(namaRekeningDenda)
 
@@ -562,14 +620,38 @@ function jenis_pendapatan(company_id, kategori_pajak, reff_pajak, grup_id, kateg
 
 function edit_tarif(company_id, uuid)
 {
-    window.location = baseUrl + '/pengaturan/tarif-usaha/' + company_id + '/' + uuid + '/edit'
+    window.location = baseUrl + '/pengaturan/tarif-usaha/edit/' + company_id + '/' + uuid
 }
 
 function hapus_tarif(company_id, uuid)
 {
+    $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+        $('#captImg img').attr('src', data);
+    });
+
     bootbox.confirm({
         message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penghapusan Data </h4><hr>\
             <h5>Apakah anda yakin ingin menghapus data tersebut?</h5>\
+                Data tarif usaha yang dihapus tidak akan muncul pada menu Pendataan Wajib Pajak\
+            <br><br>\
+            <div class='form-login'>\
+                <div class='form-group' id='form-captcha'>\
+                    <div style='display: flex'>\
+                        <div style='flex: 3;'>\
+                            <input type='text' class='form-control' name='captcha' id='captcha' placeholder='Captcha' value='' maxlength='6' autocomplete='off'>\
+                            <span class='text-danger'>masukkan captha untuk konfirmasi</span>\
+                        </div>\
+                        <div style='flex: 1;'>\
+                            <a href='javascript:void(0);' class='refreshCaptcha'>\
+                                <img src='"+baseUrl+'/assets/images/icons/refresh.png'+"' style='padding:5px 0 0 5px' alt='load'>\
+                            </a>\
+                        </div>\
+                        <div style='flex: 1;'>\
+                            <p id='captImg'><img></p>\
+                        </div>\
+                    </div>\
+                </div>\
+            </div>\
         </div>",
         buttons: {
             confirm: {
@@ -583,46 +665,114 @@ function hapus_tarif(company_id, uuid)
         },
         callback: function(isConfirm) {
             if(isConfirm) {
-                $.ajax({
-                    type: 'DELETE',
-                    url: baseApiUrl + '/pengaturan/tarif-usaha/',
-                    dataType: 'json',
-                    data : {
-                        'company_id'    : company_id,
-                        'uuid'          : uuid
-                    },
-                    beforeSend: function() {
-                        spinner = Rats.UI.LoadAnimation.start()
-                    },
-                    headers: {
-                        'Accept' : 'application/json',
-                        'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                    },
-                    statusCode: {
-                        200: function(responseObject) {
-                            if(responseObject.status == true) {
-                                $.gritter.add({
-                                    title: 'Penghapusan Berhasil',
-                                    text: 'Penghapusan data tarif usaha berhasil. Silahkan menunggu beberapa saat',
-                                    time: 2000,
-                                    class_name: 'gritter-success gritter-center'
-                                });
+                var captcha   = $("input[name=captcha]").val();
 
-                                $('#tabelTarifUsaha').dataTable().fnDestroy();
-                                $('#tabelTarifUsaha').hide();
-                                
-                                var data = responseObject.data
-                                tarif_usaha.search(data.company_id, data.kategori_pajak, data.reff_pajak, data.grup_id, data.kategori_id, data.subkategori_id, data.subrekening_id, data.rekening_id, data.pendapatan_id)
+                if(captcha != "" && captcha.length == 6)
+                {
+                    if(isConfirm)
+                    {
+                        $.ajax({
+                            type: 'DELETE',
+                            url: baseApiUrl + '/pengaturan/tarif-usaha',
+                            dataType: 'json',
+                            data : {
+                                'company_id'    : company_id,
+                                'uuid'          : uuid,
+                                captcha         : captcha
+                            },
+                            beforeSend: function() {
+                                spinner = Rats.UI.LoadAnimation.start()
+                            },
+                            headers: {
+                                'Accept' : 'application/json',
+                                'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
+                            },
+                            statusCode: {
+                                200: function(responseObject) {
+                                    if(responseObject.status == true) {
+                                        $.gritter.add({
+                                            title: 'Penghapusan Berhasil',
+                                            text: 'Penghapusan data tarif usaha berhasil. Silahkan menunggu beberapa saat',
+                                            time: 2000,
+                                            class_name: 'gritter-success gritter-center'
+                                        });
+        
+                                        $('#tabelTarifUsaha').dataTable().fnDestroy();
+                                        $('#tabelTarifUsaha').hide();
+                                        
+                                        var data = responseObject.data
+                                        tarif_usaha.search(data.company_id, data.kategori_pajak, data.reff_pajak, data.grup_id, data.kategori_id, data.subkategori_id, data.subrekening_id, data.rekening_id, data.pendapatan_id)
+                                        Rats.UI.LoadAnimation.stop(spinner);
+                                    }
+                                },
+                                422: function() {
+                                    $('#form-captcha').addClass('has-error')
+                                    $('#captcha').addClass('inputError');
+                                    $('#captcha').val('');
+    
+                                    $.gritter.add({
+                                        title: 'Terjadi Kesalahan',
+                                        text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                        class_name: 'gritter-warning gritter-center',
+                                        time: 1000
+                                    });
+                                },
+                                401: function(responseObject) {
+                                    UnauthorizedMessages();
+                                },
+                                500: function() {
+                                    $.gritter.add({
+                                        title: 'Terjadi Kesalahan',
+                                        text: 'Terjadi kesalahan sistem, data gagal di dihapus. silahkan hubungi admin untuk mendapatkan support',
+                                        class_name: 'gritter-error gritter-center'
+                                    });
+                                }
+                            },
+                            error: function() {
                                 Rats.UI.LoadAnimation.stop(spinner);
                             }
-                        },
-                        401: function(responseObject) {
-                            UnauthorizedMessages();
-                        }
-                    },
-                });
+                        });
+                    }
+                }else
+                {
+                    if(isConfirm)
+                    {
+                        $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                            $('#captImg img').attr('src', data);
+                        });
+
+                        $('#form-captcha').addClass('has-error')
+                        $('#captcha').addClass('inputError');
+                        $('#captcha').val('');
+
+                        $.gritter.add({
+                            title: 'Terjadi Kesalahan',
+                            text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                            class_name: 'gritter-warning gritter-center',
+                            time: 1500
+                        });
+
+                        return false;
+                    }
+                }
             }
         }
+    }).find('.modal-content').css({
+        'margin-top': function (){
+            var w = $( window ).height();
+            var b = $(".modal-dialog").height();
+            // should not be (w-h)/2
+            var h = ((w-b)/2) - 200;
+            return h+"px";
+        }
+    });
+
+    $('.refreshCaptcha').on('click', function(e){
+        e.preventDefault();
+        
+        $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+            $('#captImg img').attr('src', data);
+        });
     });
 }
 
@@ -697,6 +847,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         break;
                         case 'edit':
                             tarif_usaha.edit()
+                        break;
+                        case 'filter':
+                            tarif_usaha.filter()
                         break;
                     }
                 }

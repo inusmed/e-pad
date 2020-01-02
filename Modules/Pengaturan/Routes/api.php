@@ -72,6 +72,12 @@ Route::group(['prefix' => 'v1/pengaturan'], function () {
                 Route::delete('tarif-omzet', 'TarifOmzet@destroy');
                 Route::get('tarif-omzet/{company_id}/{uuid}', 'TarifOmzet@get');
                 Route::patch('tarif-omzet/{company_id}/{uuid}', 'TarifOmzet@update');
+
+                Route::post('tarif-usaha', 'TarifUsaha@datatable');
+                Route::post('tarif-usaha/store', 'TarifUsaha@store');
+                Route::delete('tarif-usaha', 'TarifUsaha@destroy');
+                Route::get('tarif-usaha/{company_id}/{uuid}', 'TarifUsaha@get');
+                Route::patch('tarif-usaha/{company_id}/{uuid}', 'TarifUsaha@update');
             });
         });
     });

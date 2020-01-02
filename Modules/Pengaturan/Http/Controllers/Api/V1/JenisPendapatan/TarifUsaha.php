@@ -6,15 +6,15 @@ use Validator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Modules\Pengaturan\Repositories\JenisPendapatan\TarifOmzetRepository;
+use Modules\Pengaturan\Repositories\JenisPendapatan\TarifUsahaRepository;
 
-class TarifOmzet extends Controller
+class TarifUsaha extends Controller
 {
     /**
      * Display a listing of the resource.
      * @return Response
      */
-    public function datatable(TarifOmzetRepository $tarifOmzetRepository)
+    public function datatable(TarifUsahaRepository $tarifUsahaRepository)
     {
         $data = [
             'company_id' =>  request('company_id'),
@@ -28,16 +28,16 @@ class TarifOmzet extends Controller
             'pendapatan_id'  => request('pendapatan_id'),
         ];
         
-        return $tarifOmzetRepository->datatable($data);
+        return $tarifUsahaRepository->datatable($data);
     }
 
     /**
      * Show the form for creating a new resource.
      * @return Response
      */
-    public function get(TarifOmzetRepository $tarifOmzetRepository, $company_id, $uuid)
+    public function get(TarifUsahaRepository $tarifUsahaRepository, $company_id, $uuid)
     {
-        $tarifPendapatan = $tarifOmzetRepository->getByUuid($company_id, $uuid);
+        $tarifPendapatan = $tarifUsahaRepository->getByUuid($company_id, $uuid);
 
         if( !is_null($tarifPendapatan) )
         {
@@ -82,7 +82,7 @@ class TarifOmzet extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(TarifOmzetRepository $tarifOmzetRepository)
+    public function store(TarifUsahaRepository $tarifUsahaRepository)
     {
         $data = [
             'kategori_pajak_id' => request('kategori_pajak'),
@@ -99,12 +99,9 @@ class TarifOmzet extends Controller
         /** set error rules */
         $rules = array(
             'id'     => 'required', 
-            'satuan' => 'required|min:1|max:20', 
             'kode_akun' => 'required',
             'persentase' => 'required',
-            'nominal'    => 'required',
             'nama'       => 'required|min:3|max:150',
-            'grupTarif'  => 'required|integer',
             'periodeTarif' => 'required|integer',
             'status' => 'required'
         );
@@ -116,29 +113,28 @@ class TarifOmzet extends Controller
         if (!$validator->fails())
         {
 
-            $tarifPendapatan = $tarifOmzetRepository->get($data);
+            $tarifPendapatan = $tarifUsahaRepository->get($data);
 
             $store_data = array_merge($data, [
                 'id'                    => ( is_null($tarifPendapatan) ) ? 1 : $tarifPendapatan['id'] + 1,
                 'kode_akun'             => preg_replace('/\D/', '', request('kode_akun')),
+                'uuid'                  => Uuid::generate(4)->string,
                 'nama'                  => request('nama'),
                 'reff_periode_tarif_id' => request('periodeTarif'),
-                'tarif_group_id'        => request('grupTarif'),
-                'uuid'                  => Uuid::generate(4)->string,
-                'satuan'                => request('satuan'),
+                'tarif_group_id'        => 1,
                 'persentase'            => request('persentase'),
-                'nilai'                 => preg_replace('/\D/', '', request('nominal')),
+                'nilai'                 => 1,
                 'keterangan'            => request('keterangan'),
                 'status'                => request('status')
             ]);
 
             /* store data to database */
-            if($tarifOmzetRepository->store($store_data))
+            if($tarifUsahaRepository->store($store_data))
             {
                 return response()->json(array(
                     'success'   => true,
                     'data'      => $store_data,
-                    'messages'  => 'Penambahan data tarif omzet berhasil'
+                    'messages'  => 'Penambahan data tarif usaha berhasil'
                 ), 200);
             }
         }
@@ -156,15 +152,12 @@ class TarifOmzet extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(TarifOmzetRepository $tarifOmzetRepository, $company_id, $uuid)
+    public function update(TarifUsahaRepository $tarifUsahaRepository, $company_id, $uuid)
     {
         /** set error rules */
         $rules = array(
-            'satuan' => 'required|min:1|max:20', 
             'persentase' => 'required',
-            'nominal'    => 'required',
             'nama'       => 'required|min:3|max:150',
-            'grupTarif'  => 'required|integer',
             'periodeTarif' => 'required|integer',
             'status' => 'required'
         );
@@ -174,13 +167,8 @@ class TarifOmzet extends Controller
             'nama.required'   => 'Terjadi kesalahan pada nama pendapatan',
             'nama.min'        => 'Minimal nama pendapatan adalah 3 karakter huruf',
             'nama.max'        => 'Maksimal nama pendapatan adalah 150 karakter huruf',
-            'grupTarif.required'    =>  'Pilih grup tarif terlebih dahulu',
             'periodeTarif.required' =>  'Pilih periode terlebih dahulu',
-            'nominal.required' =>  'Nominal tidak boleh kosong',
             'persentase.required' =>  'Nilai persentase tidak boleh kosong',
-            'satuan.required' =>  'Nilai satuan tidak boleh kosong',
-            'satuan.min'      => 'Minimal satuan pendapatan adalah 1 karakter huruf',
-            'satuan.max'      => 'Maksimal satuan pendapatan adalah 20 karakter huruf',
         ];
 
         /** create validator */
@@ -196,16 +184,14 @@ class TarifOmzet extends Controller
             ), 422);
         }
 
-        $updated = $tarifOmzetRepository->updated([
+        $updated = $tarifUsahaRepository->updated([
             ['company_id', '=', $company_id],
             ['uuid', '=', $uuid]
         ], [
             'nama'                  => request('nama'),
             'reff_periode_tarif_id' => request('periodeTarif'),
-            'tarif_group_id'        => request('grupTarif'),
             'satuan'                => request('satuan'),
             'persentase'            => request('persentase'),
-            'nilai'                 => preg_replace('/\D/', '', request('nominal')),
             'keterangan'            => request('keterangan'),
             'status'                => request('status')
         ]);
@@ -213,8 +199,8 @@ class TarifOmzet extends Controller
         if($updated) {
             return response()->json(array(
                 'success'   => true,
-                'data'      => $tarifOmzetRepository->get(['uuid' => $uuid]),
-                'messages'  => 'perubahan data tarif omzet berhasil'
+                'data'      => $tarifUsahaRepository->get(['uuid' => $uuid]),
+                'messages'  => 'perubahan data tarif usaha berhasil'
             ), 200);
         }
     }
@@ -224,13 +210,13 @@ class TarifOmzet extends Controller
      * @param int $id
      * @return Response
      */
-    public function destroy(TarifOmzetRepository $tarifOmzetRepository)
+    public function destroy(TarifUsahaRepository $tarifUsahaRepository)
     {
         $validator = Validator::make(request()->all(), ['captcha' => 'required|captcha']);
 
         if( !$validator->fails() )
         {
-            $data = $tarifOmzetRepository->get([
+            $data = $tarifUsahaRepository->get([
                 'company_id' => request('company_id'),
                 'uuid'       => request('uuid')
             ]);
@@ -247,7 +233,7 @@ class TarifOmzet extends Controller
                 'pendapatan_id'     => $data['pendapatan_id'],
             ];
 
-            $delete =  $tarifOmzetRepository->deleteBy([
+            $delete =  $tarifUsahaRepository->deleteBy([
                 'company_id' => request('company_id'),
                 'uuid'       => request('uuid')
             ]);
@@ -282,13 +268,8 @@ class TarifOmzet extends Controller
             'nama.min'        => 'Minimal nama pendapatan adalah 3 karakter huruf',
             'nama.max'        => 'Maksimal nama pendapatan adalah 150 karakter huruf',
             'kode_akun.required' =>  'Terjadi kesalahan pemilihan jenis pendapatan',
-            'grupTarif.required'    =>  'Pilih grup tarif terlebih dahulu',
             'periodeTarif.required' =>  'Pilih periode terlebih dahulu',
-            'nominal.required' =>  'Nominal tidak boleh kosong',
             'persentase.required' =>  'Nilai persentase tidak boleh kosong',
-            'satuan.required' =>  'Nilai satuan tidak boleh kosong',
-            'satuan.min'      => 'Minimal satuan pendapatan adalah 1 karakter huruf',
-            'satuan.max'      => 'Maksimal satuan pendapatan adalah 20 karakter huruf',
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 @extends('layouts.admin')
 
-@section('title', 'Master Tarif Omzet')
+@section('title', 'Master Tarif Usaha')
 
 @section('content')
     <!-- BREADCRUMB -->
@@ -15,7 +15,7 @@
                 <a href="javascript:void(0)"> Rekening </a>
             </li>
             
-            <li class="active"> Tarif Omzet </li>
+            <li class="active"> Tarif usaha </li>
         </ul>
         <!-- /.breadcrumb -->
 
@@ -36,7 +36,7 @@
             <h1>
                 Jenis Pendapatan
                 <small>
-                    <i class="ace-icon fa fa-angle-double-right"></i><span id="txt_judul"> Tarif Omzet</span>
+                    <i class="ace-icon fa fa-angle-double-right"></i><span id="txt_judul"> Tarif Usaha</span>
                 </small>
             </h1>
         </div>
@@ -64,7 +64,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="input-group">
-                                        <input type="text" id="jenis_pendapatan" readonly="readonly" class="form-control search-query" placeholder="Jenis Pendapatan">
+                                        <input type="text" id="jenis_pendapatan" readonly="readonly" class="form-control search-query" placeholder="Jenis Pendpatan">
                                         <span class="input-group-btn">
                                             <button type="button" id="btn-jenis-pendapatan" class="btn btn-inverse btn-white">
                                                 <span class="ace-icon fa fa-search icon-on-right bigger-110"></span>
@@ -86,10 +86,10 @@
                     <div class="widget-box widget-color-dark light-border">
 
                         <div class="widget-header">
-                            <h6 class="widget-title">Daftar Tarif Omzet</h6>
+                            <h6 class="widget-title">Daftar Tarif Usaha</h6>
 
                             <div class="widget-toolbar">
-                                <a href="{{ url('pengaturan/tarif-omzet/create') }}" class="btn btn-xs btn-danger bigger">
+                                <a href="{{ url('pengaturan/tarif-usaha/create') }}" class="btn btn-xs btn-danger bigger">
                                     <i class="ace-icon fa fa-plus"></i>
                                     Tambah
                                 </a>
@@ -203,21 +203,11 @@
 
     <script src="{{ url('/assets/epad/base.js') }}"></script>
 
-    <script src="{{ url('/assets/epad/pengaturan/jenis-pendapatan/tarif-omzet.js') }}"></script>
+    <script src="{{ url('/assets/epad/pengaturan/jenis-pendapatan/tarif-usaha.js') }}"></script>
 @endpush
 
 @push('scripts')
 <script>
-    var pages      = 'filter';
-
-    var company_id = '{{ $company_id }}';
-    var kategori_pajak = {{ $kategori_pajak_id }};
-    var reff_pajak = {{ $ketetapan_pajak }};
-    var grup_id = {{ $grup_id }};
-    var kategori_id = {{ $kategori_id }};
-    var subkategori_id = {{ $subkategori_id }};
-    var subrekening_id = {{ $subrekening_id }};
-    var rekening_id = {{ $rekening_id }};
-    var id = {{ $pendapatan_id }};
+    var pages      = 'show';
 </script>
 @endpush
