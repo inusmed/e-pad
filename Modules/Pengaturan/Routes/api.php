@@ -44,14 +44,26 @@ Route::group(['prefix' => 'v1/pengaturan'], function () {
                 Route::patch('mata-anggaran/subrekening/{company}/pajak/{pajak}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/uuid/{uuid}', 'SubRekening@update');
                 Route::get('mata-anggaran/subrekening/{company}/pajak/{pajak}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/uuid/{uuid}', 'SubRekening@get');
                 Route::get('mata-anggaran/subrekening/{company}/grup/{group}/kategori/{kategori}/subkategori/{subkategori}/list-subrekening', 'SubRekening@lists');
+                Route::get('mata-anggaran/subrekening/{company}/pajak/{pajak}/grup/{group}/kategori/{kategori}/subkategori/{subkategori}/list-subrekening', 'SubRekening@listSubRekening');
                 Route::post('mata-anggaran/subrekening/{company}/grup/{group}/kategori/{kategori}/subkategori/{subkategori}', 'SubRekening@datatable');
 
                 Route::post('mata-anggaran/rekening', 'Rekening@store');
                 Route::delete('mata-anggaran/rekening', 'Rekening@destroy');
                 Route::patch('mata-anggaran/rekening/{company}/pajak/{pajak}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/uuid/{uuid}', 'Rekening@update');
                 Route::get('mata-anggaran/rekening/{company}/pajak/{pajak}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/uuid/{uuid}', 'Rekening@get');
+                Route::get('mata-anggaran/rekening/{company}/pajak/{pajak}/grup/{group}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/list-rekening', 'Rekening@listRekening');
+                Route::post('mata-anggaran/rekening/rekening-pendapatan-denda', 'Rekening@listRekeningDenda');
                 Route::post('mata-anggaran/rekening/{company}/grup/{group}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}', 'Rekening@datatable');
             }); 
+
+
+            Route::group(['namespace' => 'JenisPendapatan'], function() {
+                Route::post('jenis-pendapatan', 'Pendapatan@datatable');
+                Route::post('jenis-pendapatan/store', 'Pendapatan@store');
+                Route::delete('jenis-pendapatan', 'Pendapatan@destroy');
+                Route::patch('jenis-pendapatan/{company}/pajak/{pajak}/ketetapan/{ketetapan_id}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/rekening/{rekening}/pendapatan/{pendapatan}', 'Pendapatan@update');
+                Route::get('jenis-pendapatan/{company}/pajak/{pajak}/ketetapan/{ketetapan_id}/grup/{grup}/kategori/{kategori}/subkategori/{subkategori}/subrekening/{subrekening}/rekening/{rekening}/pendapatan/{pendapatan}', 'Pendapatan@get');
+            });
         });
     });
 });

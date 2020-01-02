@@ -167,6 +167,14 @@ var rekening = function () {
                         }
                     }
                 });
+
+                $('.refreshCaptcha').on('click', function(e){
+                    e.preventDefault();
+                    
+                    $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                        $('#captImg img').attr('src', data);
+                    });
+                });
             });
         },
 

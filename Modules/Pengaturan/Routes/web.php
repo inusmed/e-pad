@@ -34,6 +34,13 @@ Route::group(['middleware' => 'language'], function () {
                 Route::get('mata-anggaran/rekening-akun/create/{company_id}', 'Rekening@create');
                 Route::get('mata-anggaran/rekening-akun/edit/{company_id}', 'Rekening@edit');
             });
+
+            Route::group(['namespace' => 'JenisPendapatan'], function () {
+                Route::get('jenis-pendapatan', 'Pendapatan@index');
+                Route::get('jenis-pendapatan/create', 'Pendapatan@create');
+                Route::get('jenis-pendapatan/show/{company_id}', 'Pendapatan@show');
+                Route::get('jenis-pendapatan/edit/{company_id}', 'Pendapatan@edit');
+            });
         });
     });
 });

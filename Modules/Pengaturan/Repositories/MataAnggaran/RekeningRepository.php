@@ -174,4 +174,56 @@ class RekeningRepository
 
         return response()->json($response);
     }
+
+    public function listRekening($company_id, $pajak_id, $grup_id, $kategori_id, $subkategori_id, $subrekening_id)
+    {
+        $response[0] = [
+            'id'    => 0,
+            'name'  => 'Pilih Kode Rekening' 
+        ];
+
+        $search = [
+            'company_id'    => $company_id,
+            'grup_id'       => $grup_id,
+            'kategori_id'   => $kategori_id,
+            'subrekening_id'=> $subrekening_id,
+            'kategori_pajak_id'  => $pajak_id
+        ];
+
+        $data   = $this->model->where($search)
+                       ->orderBy('id', 'asc')
+                       ->get();
+    
+        foreach($data as $key => $value)
+        {
+            $response[] = array(
+                'id'     => $value->id,
+                'name'   => $value->grup_id.'.'.$value->kategori_id.'.'.$value->subkategori_id.'.'.$value->subrekening_id.'.'.$value->id.' -- '.$value->nama
+            );
+        }
+
+        return response()->json($response);
+    }
+
+    public function listRekeningDenda($search)
+    {
+        $data   = $this->model->where($search)
+                       ->orderBy('id', 'asc')
+                       ->get();
+    
+        foreach($data as $key => $value)
+        {
+            $response[] = array(
+                'company_id'    => $value->company_id,
+                'grup_id'       => $value->grup_id,
+                'kategori_id'   => $value->kategori_id,
+                'subkategori_id'=> $value->subkategori_id,
+                'subrekening_id'=> $value->subrekening_id,
+                'id'            => $value->id,
+                'nama'          => $value->nama
+            );
+        }
+
+        return DataTables::of($response)->make(true);
+    }
 }

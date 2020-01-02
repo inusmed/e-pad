@@ -7,7 +7,7 @@ var pendapatan = function () {
         get: function() {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl + '/pengaturan/jenis-pendapatan/' + company_id + '/' + kategori_pajak + '/' + reff_pajak + '/' + grup_id + '/' + kategori_id + '/' + subkategori_id + '/' + subrekening_id + '/' + rekening_id  + '/' + id +'/get',
+                url: baseApiUrl + '/pengaturan/jenis-pendapatan/' + company_id + '/pajak/' + kategori_pajak_id + '/ketetapan/' + ketetapan_id + '/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id + '/subrekening/' + subrekening_id + '/rekening/' + rekening_id  + '/pendapatan/' + id,
                 dataType: 'json',
                 headers: {
                     'Accept' : 'application/json',
@@ -44,9 +44,33 @@ var pendapatan = function () {
             });
 
             $('#btn-hapus').click(function() {
+                $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                    $('#captImg img').attr('src', data);
+                });
+
                 bootbox.confirm({
-                    message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penambahan Data </h4><hr>\
+                    message: "<h4 class='smaller'><i class='ace-icon fa fa-warning red'></i> Konfirmasi Penghapusan Data </h4><hr>\
                         <h5>Apakah anda yakin ingin menghapus data tersebut?</h5>\
+                        Penghapusan jenis pendapatan akan menghapus data tarif omzet yang berinduk pada jenis pendapatan ini \
+                        <br><br>\
+                        <div class='form-login'>\
+                            <div class='form-group' id='form-captcha'>\
+                                <div style='display: flex'>\
+                                    <div style='flex: 3;'>\
+                                        <input type='text' class='form-control' name='captcha' id='captcha' placeholder='Captcha' value='' maxlength='6' autocomplete='off'>\
+                                        <span class='text-danger'>masukkan captha untuk konfirmasi</span>\
+                                    </div>\
+                                    <div style='flex: 1;'>\
+                                        <a href='javascript:void(0);' class='refreshCaptcha'>\
+                                            <img src='"+baseUrl+'/assets/images/icons/refresh.png'+"' style='padding:5px 0 0 5px' alt='load'>\
+                                        </a>\
+                                    </div>\
+                                    <div style='flex: 1;'>\
+                                        <p id='captImg'><img></p>\
+                                    </div>\
+                                </div>\
+                            </div>\
+                        </div>\
                     </div>",
                     buttons: {
                         confirm: {
@@ -59,51 +83,101 @@ var pendapatan = function () {
                         }
                     },
                     callback: function(isConfirm) {
-                        if(isConfirm) {
-                            $.ajax({
-                                type: 'DELETE',
-                                url: baseApiUrl + '/pengaturan/jenis-pendapatan/',
-                                dataType: 'json',
-                                data : {
-                                    'company_id'    : company_id,
-                                    'kategori_pajak': kategori_pajak,
-                                    'reff_pajak'    : reff_pajak,
-                                    'grup_id'       : grup_id,
-                                    'kategori_id'   : kategori_id,
-                                    'subkategori_id' : subkategori_id,
-                                    'subrekening_id' : subrekening_id,
-                                    'rekening_id'   : rekening_id,
-                                    'id'            : id
-                                },
-                                beforeSend: function() {
-                                    spinner = Rats.UI.LoadAnimation.start()
-                                },
-                                headers: {
-                                    'Accept' : 'application/json',
-                                    'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
-                                },
-                                statusCode: {
-                                    200: function(responseObject) {
-                                        if(responseObject.status == true) {
+                        var captcha   = $("input[name=captcha]").val();
+
+                        if(captcha != "" && captcha.length == 6)
+                        {
+                            if(isConfirm) {
+                                $.ajax({
+                                    type: 'DELETE',
+                                    url: baseApiUrl + '/pengaturan/jenis-pendapatan',
+                                    dataType: 'json',
+                                    data : {
+                                        'company_id'    : company_id,
+                                        'kategori_pajak': kategori_pajak_id,
+                                        'ketetapan_id'    : ketetapan_id,
+                                        'grup_id'       : grup_id,
+                                        'kategori_id'   : kategori_id,
+                                        'subkategori_id': subkategori_id,
+                                        'subrekening_id': subrekening_id,
+                                        'rekening_id'   : rekening_id,
+                                        'id'            : id,
+                                        captcha     : captcha
+                                    },
+                                    beforeSend: function() {
+                                        spinner = Rats.UI.LoadAnimation.start()
+                                    },
+                                    headers: {
+                                        'Accept' : 'application/json',
+                                        'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
+                                    },
+                                    statusCode: {
+                                        200: function(responseObject) {
+                                            if(responseObject.status == true) {
+                                                $.gritter.add({
+                                                    title: 'Penghapusan Berhasil',
+                                                    text: 'Penghapusan data jenis pendapatan berhasil. Silahkan menunggu beberapa saat',
+                                                    time: 2000,
+                                                    class_name: 'gritter-success gritter-center'
+                                                });
+                                                
+                                                setTimeout(function(){
+                                                    window.location = baseUrl + '/pengaturan/jenis-pendapatan';
+                                                }, 1000);
+                                            }
+                                        },
+                                        422: function() {
+                                            $('#form-captcha').addClass('has-error')
+                                            $('#captcha').addClass('inputError');
+                                            $('#captcha').val('');
+            
                                             $.gritter.add({
-                                                title: 'Penghapusan Berhasil',
-                                                text: 'Penghapusan data jenis pendapatan berhasil. Silahkan menunggu beberapa saat',
-                                                time: 2000,
-                                                class_name: 'gritter-success gritter-center'
+                                                title: 'Terjadi Kesalahan',
+                                                text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                                class_name: 'gritter-warning gritter-center',
+                                                time: 1000
                                             });
-    
-                                            setTimeout(function(){
-                                                window.location = baseUrl + '/pengaturan/jenis-pendapatan/'
-                                            }, 1000);
+                                        },
+                                        401: function(responseObject) {
+                                            UnauthorizedMessages();
                                         }
                                     },
-                                    401: function(responseObject) {
-                                        UnauthorizedMessages();
+                                    error: function() {
+                                        Rats.UI.LoadAnimation.stop(spinner);
                                     }
-                                },
-                            });
+                                });
+                            }
+                        }
+                        else {
+                            if(isConfirm)
+                            {
+                                $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                                    $('#captImg img').attr('src', data);
+                                });
+
+                                $('#form-captcha').addClass('has-error')
+                                $('#captcha').addClass('inputError');
+                                $('#captcha').val('');
+
+                                $.gritter.add({
+                                    title: 'Terjadi Kesalahan',
+                                    text: 'Captcha yang anda masukkan salah, perhatikan captha yang anda masukkan',
+                                    class_name: 'gritter-warning gritter-center',
+                                    time: 1000
+                                });
+
+                                return false;
+                            }
                         }
                     }
+                });
+
+                $('.refreshCaptcha').on('click', function(e){
+                    e.preventDefault();
+                    
+                    $.get(baseApiUrl + '/pengaturan/mata-anggaran/refreshCaptcha', function(data){
+                        $('#captImg img').attr('src', data);
+                    });
                 });
             });
         },
@@ -122,6 +196,7 @@ var pendapatan = function () {
                 value: '1',
                 text : "Jenis reklame tidak menggunakan metode hitung"
             });
+
             $('#metode_hitung').append(optMetodeHitung);
             $("#metode_hitung").val(1).chosen().attr('disabled', 'true').trigger("chosen:updated");
 
@@ -146,7 +221,7 @@ var pendapatan = function () {
                         if(isConfirm) {
                             $.ajax({
                                 type: 'POST',
-                                url: baseApiUrl+ '/pengaturan/jenis-pendapatan/store',
+                                url: baseApiUrl + '/pengaturan/jenis-pendapatan/store',
                                 data: {
                                     'company_id'          : $('#company_id').val(),
                                     'kategoriPajak'       : $("input[type='radio'][name='kategoriPajak']:checked").val(),
@@ -185,12 +260,17 @@ var pendapatan = function () {
                                         $.gritter.add({
                                             title: 'Penambahan Data Berhasil',
                                             text: 'Tambah Data Jenis Pendapatan Berhasil. Silahkan menunggu beberapa saat',
-                                            time: 2000,
+                                            time: 1000,
                                             class_name: 'gritter-success gritter-center'
                                         });
+                                        
+                                        var data = responseObject.data;
+
+                                        var uri = data.company_id + '?kategori_pajak_id=' + data.kategori_pajak_id + '&ketetapan_id=' + data.reff_pajak_id + '&grup_id=' + data.grup_id +'&kategori_id=' + data.kategori_id;
+                                        uri = uri + '&subkategori_id=' + data.subkategori_id + '&subrekening_id=' + data.subrekening_id + '&rekening_id=' + data.rekening_id + '&pendapatan_id=' + data.id
 
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/jenis-pendapatan/'
+                                            window.location = baseUrl + '/pengaturan/jenis-pendapatan/show/' + uri
                                         }, 1000);
                                     },
                                     401: function(responseObject) {
@@ -223,17 +303,20 @@ var pendapatan = function () {
                                                 $.gritter.add({
                                                     title: 'Terjadi Kesalahan',
                                                     text: responses.messages,
-                                                    time : 2000,
+                                                    time : 1000,
                                                     class_name: 'gritter-error gritter-center'
                                                 });
                                             }
                                         }else {
                                             $.gritter.add({
                                                 title: 'Terjadi Kesalahan',
-                                                text: 'Terjadi kesalahan, Periksa kembali data yang anda masukkan',
-                                                time : 2000,
+                                                text: responses.messages,
+                                                time : 1000,
                                                 class_name: 'gritter-warning gritter-center'
                                             });
+
+                                            $('#validation_error').show()
+                                            $('span#validation_error_text').html(responses.messages)
                                         }
 
                                         Rats.UI.LoadAnimation.stop(spinner);
@@ -242,7 +325,7 @@ var pendapatan = function () {
                                         $.gritter.add({
                                             title: 'Terjadi Kesalahan',
                                             text: 'Terjadi kesalahan sistem, data gagal di perbaharui. silahkan hubungi admin untuk mendapatkan support',
-                                            time : 2000,
+                                            time : 1000,
                                             class_name: 'gritter-error gritter-center'
                                         });
                                     }
@@ -263,7 +346,7 @@ var pendapatan = function () {
         edit: function() {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl + '/pengaturan/jenis-pendapatan/' + company_id + '/' + kategori_pajak + '/' + reff_pajak + '/' + grup_id + '/' + kategori_id + '/' + subkategori_id + '/' + subrekening_id + '/' + rekening_id  + '/' + id +'/get',
+                url: baseApiUrl + '/pengaturan/jenis-pendapatan/' + company_id + '/pajak/' + kategori_pajak_id + '/ketetapan/' + ketetapan_id + '/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id + '/subrekening/' + subrekening_id + '/rekening/' + rekening_id  + '/pendapatan/' + id,
                 dataType: 'json',
                 headers: {
                     'Accept' : 'application/json',
@@ -291,7 +374,7 @@ var pendapatan = function () {
                             $('#akun_subrekening').val(subrekening_id)
                             $('#akun_rekening').val(rekening_id)
 
-                            pendapatan.subRekeningList(grup_id, kategori_id, subkategori_id, kategori_pajak, true); 
+                            pendapatan.subRekeningList(grup_id, kategori_id, subkategori_id, kategori_pajak_id, true); 
 
                             if(data.metode_hitung_id == 1)
                             {
@@ -364,24 +447,9 @@ var pendapatan = function () {
                         if(isConfirm) {
                             $.ajax({
                                 type: 'PATCH',
-                                url: baseApiUrl+ '/pengaturan/jenis-pendapatan',
+                                url: baseApiUrl+ '/pengaturan/jenis-pendapatan/' + company_id + '/pajak/' + kategori_pajak_id + '/ketetapan/' + ketetapan_id + '/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id + '/subrekening/' + subrekening_id + '/rekening/' + rekening_id  + '/pendapatan/' + id,
                                 data: {
-                                    'company_id'          : $('#company_id').val(),
-                                    'kategori_pajak_id'   : kategori_pajak,
-                                    'reff_pajak_id'       : reff_pajak,
-                                    'grup_id'             : grup_id,
-                                    'kategori_id'         : kategori_id,
-                                    'subkategori_id'      : subkategori_id,
-                                    'subrekening_id'      : subrekening_id,
-                                    'rekening_id'         : rekening_id,
-                                    'id'                  : id,
-                                    'kategoriPajak'       : $("input[type='radio'][name='kategoriPajak']:checked").val(),
-                                    'reffPajak'           : $("input[type='radio'][name='reffPajak']:checked").val(),
                                     'jenisPajak'          : $("input[type='radio'][name='jenisPajak']:checked").val(),
-                                    'akun_grup'           : $("#akun_grup").val(),
-                                    'akun_kategori'       : $("#akun_kategori").val(),
-                                    'akun_subkategori'    : $("#akun_subkategori").val(),
-                                    'akun_subrekening'    : $("#akun_subrekening").val(),
                                     'akun_rekening'       : $("#akun_rekening").val(),
                                     'nama'                : $("#nama").val(),
                                     'kode'                : $("#kode").val(),
@@ -412,12 +480,12 @@ var pendapatan = function () {
                                         $.gritter.add({
                                             title: 'Penambahan Data Berhasil',
                                             text: 'Pembaharuan Jenis Pendapatan Berhasil. Silahkan menunggu beberapa saat',
-                                            time: 2000,
+                                            time: 1000,
                                             class_name: 'gritter-success gritter-center'
                                         });
 
                                         setTimeout(function(){
-                                            window.location = baseUrl + '/pengaturan/jenis-pendapatan/' + resp.company_id + '/' + resp.kategori_pajak_id + '/' + resp.reff_pajak_id + '/' + resp.grup_id + '/' + resp.kategori_id + '/' + resp.subkategori_id + '/' + resp.subrekening_id + '/' + resp.rekening_id + '/' + resp.id + '/show'
+                                            lihatJenisPendapatan(resp.company_id, resp.kategori_pajak_id, resp.ketetapan_id, resp.grup_id, resp.kategori_id, resp.subkategori_id, resp.subrekening_id, resp.rekening_id, resp.id)
                                         }, 1000);
                                     },
                                     401: function(responseObject) {
@@ -441,8 +509,8 @@ var pendapatan = function () {
 
                                         if(responses.validate == 'exist') {
                                             var errorString = responses.messages;
-                                            $('#form-id').addClass('has-error')
-                                            $('#id').addClass('inputError')
+                                            $('#form-kode').addClass('has-error')
+                                            $('#kode').addClass('inputError')
                                             $('#validation_error').show()
                                             $('span#validation_error_text').html(errorString)
                                         }
@@ -546,7 +614,7 @@ var pendapatan = function () {
                     {
                         data: 'status', className: "center", "width": "5%", 
                         render: function (data, type, full)  {
-                            return "<button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['nama']+"'' onclick=lihatJenisPendapatan('"+full['company_id']+"',"+full['kategori_pajak']+","+full['jenis_pajak']+","+full['grup_id']+","+full['kategori_id']+","+full['subkategori_id']+","+full['subrekening_id']+","+full['rekening_id']+","+full['id']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>";
+                            return "<button style='cursor:pointer' data-rel='tooltip' title='Lihat "+full['nama']+"'' onclick=lihatJenisPendapatan('"+full['company_id']+"',"+full['kategori_pajak']+","+full['ketetapan_id']+","+full['grup_id']+","+full['kategori_id']+","+full['subkategori_id']+","+full['subrekening_id']+","+full['rekening_id']+","+full['id']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>";
                         }
                     }
                 ]
@@ -556,10 +624,7 @@ var pendapatan = function () {
         subRekeningList: function(grup_id, kategori_id, subkategori_id, kategoriPajak, status) {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl+ '/pengaturan/mata-anggaran/subrekening/'+company_id + '/' + grup_id + '/' + kategori_id + '/'+ subkategori_id +'/listSubRekening',
-                data : {
-                    'kategoriPajak'   : kategoriPajak
-                },
+                url: baseApiUrl+ '/pengaturan/mata-anggaran/subrekening/'+company_id + '/pajak/' + kategoriPajak + '/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id + '/list-subrekening',
                 headers: {
                     "Accept"  : "application/json",
                     'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
@@ -579,17 +644,21 @@ var pendapatan = function () {
                             $('#subrekening_id').append(opt);
                         });
                         
-                        if(status) {
-                            $("#subrekening_id").val(subrekening_id).chosen().trigger("chosen:updated");
-                            pendapatan.rekeningList(grup_id, kategori_id, subkategori_id, subrekening_id, kategori_pajak, true)
+                        if(pages == 'edit') {
+                            if(status) {
+                                $("#subrekening_id").val(subrekening_id).chosen().attr('disabled', true).trigger("chosen:updated");
+                                pendapatan.rekeningList(grup_id, kategori_id, subkategori_id, subrekening_id, kategori_pajak_id, true)
+                            }else {
+                                $("#subrekening_id").val(0).chosen().trigger("chosen:updated");
+                            }
                         }else {
-                            $("#subrekening_id").val(0).chosen().trigger("chosen:updated");
+                            if(status) {
+                                $("#subrekening_id").val(subrekening_id).chosen().trigger("chosen:updated");
+                                pendapatan.rekeningList(grup_id, kategori_id, subkategori_id, subrekening_id, kategori_pajak_id, true)
+                            }else {
+                                $("#subrekening_id").val(0).chosen().trigger("chosen:updated");
+                            }
                         }
-                        
-                        var opt = $("<option />", {
-                            value: '0',
-                            text : "Pilih Rekening Utama Terlebih Dahulu"
-                        });
         
                         $('#rekening_id').append(opt);
                         $("#rekening_id").val(0).chosen().trigger("chosen:updated");
@@ -626,10 +695,7 @@ var pendapatan = function () {
         rekeningList: function(grup_id, kategori_id, subkategori_id, subrekening_id, kategoriPajak, status) {
             $.ajax({
                 type: 'GET',
-                url: baseApiUrl+ '/pengaturan/mata-anggaran/rekening/'+company_id + '/' + grup_id + '/' + kategori_id + '/'+ subkategori_id + '/'+ subrekening_id +'/listRekening',
-                data : {
-                    'kategoriPajak'   : kategoriPajak
-                },
+                url: baseApiUrl+ '/pengaturan/mata-anggaran/rekening/'+company_id + '/pajak/' + kategoriPajak + '/grup/' + grup_id + '/kategori/' + kategori_id + '/subkategori/' + subkategori_id + '/subrekening/' + subrekening_id +'/list-rekening',
                 headers: {
                     "Accept"  : "application/json",
                     'Authorization': 'Bearer ' +localStorage.getItem('api_token'),
@@ -736,7 +802,7 @@ var pendapatan = function () {
                 $('#modalViewAkunDenda').modal('show')
                 $('#tabelRekeningDenda').DataTable( {
                     "bInfo": true,
-                    "bFilter": false,
+                    "bFilter": true,
                     "bAutoWidth": true,
                     "bSort": false,
                     "pageLength": 8,
@@ -885,10 +951,10 @@ function percentageCheck(e,value)
     return true;
 }
 
-function lihatJenisPendapatan(company_id, kategori_pajak, jenis_pajak, grup_id, kategori_id, subkategori_id, subrekening_id, rekening_id, id)
+function lihatJenisPendapatan(company_id, kategori_pajak, ketetapan_id, grup_id, kategori_id, subkategori_id, subrekening_id, rekening_id, id)
 {
-    var url =  baseUrl + '/pengaturan/jenis-pendapatan/' + company_id + '/' +  kategori_pajak + '/' + jenis_pajak + '/' + grup_id + '/' + kategori_id + '/';
-    var url = url + subkategori_id + '/' + subrekening_id + '/' + rekening_id + '/' + id + '/show';
+    var url =  baseUrl + '/pengaturan/jenis-pendapatan/show/' + company_id + '?kategori_pajak_id=' +  kategori_pajak + '&ketetapan_id=' + ketetapan_id + '&grup_id=' + grup_id + '&kategori_id=' + kategori_id + '&subkategori_id=';
+    var url = url + subkategori_id + '&subrekening_id=' + subrekening_id + '&rekening_id=' + rekening_id + '&pendapatan_id=' + id;
     window.location = url; 
 }
 

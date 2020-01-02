@@ -224,4 +224,27 @@ class Rekening extends Controller
     {
         return $RekeningRepository->lists($company_id, $grup_id);
     }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function listRekening(RekeningRepository $RekeningRepository, $company_id, $kategori_pajak_id, $grup_id, $kategori_id, $subkategori_id, $subrekening_id)
+    {   
+        return $RekeningRepository->listRekening($company_id, $kategori_pajak_id, $grup_id, $kategori_id, $subkategori_id, $subrekening_id);
+    }
+
+    public function listRekeningDenda(RekeningRepository $RekeningRepository)
+    {
+        $search = [
+            'company_id'    => 'X3B196590X9',
+            'grup_id'       => '4',
+            'kategori_id'   => '1',
+            'subkategori_id'=> '4',
+            'subrekening_id'=> '7',
+        ];
+
+        return $RekeningRepository->listRekeningDenda($search);
+    }
 }

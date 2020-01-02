@@ -218,4 +218,14 @@ class SubRekening extends Controller
     {
         return $SubRekeningRepository->lists($company_id, $grup_id, $kategori_id, $subkategori);
     }
+
+    /**
+     * Show the specified resource.
+     * @param int $id
+     * @return Response
+     */
+    public function listSubRekening(SubRekeningRepository $SubRekeningRepository, $company_id, $pajak, $grup_id, $kategori_id, $subkategori)
+    {
+        return $SubRekeningRepository->listSubRekening($company_id, $pajak, $grup_id, $kategori_id, $subkategori);
+    }
 }

@@ -166,4 +166,29 @@ class SubRekeningRepository
 
         return response()->json($response);
     }
+
+    public function listSubRekening($company_id, $pajak, $grup_id, $kategori_id, $subkategori_id)
+    {
+        $data   = $this->model->where([
+            'company_id'    => $company_id,
+            'kategori_pajak_id'  => $pajak,
+            'grup_id'       => $grup_id,
+            'kategori_id'   => $kategori_id,
+        ])->orderBy('id', 'asc')->get();
+
+        $response[0] = [
+            'id'    => 0,
+            'name'  => 'Pilih Sub Rekening Akun' 
+        ];
+        
+        foreach($data as $key => $value)
+        {
+            $response[] = array(
+                'id'     => $value->id,
+                'name'   => $value->grup_id.'.'.$value->kategori_id.'.'.$value->subkategori_id.'.'.$value->id.' '.$value->nama
+            );
+        }
+
+        return response()->json($response);
+    }
 }
