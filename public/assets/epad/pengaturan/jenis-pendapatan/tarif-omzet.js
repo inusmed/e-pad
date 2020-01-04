@@ -268,7 +268,7 @@ var tarif_omzet = function () {
                                             class_name: 'gritter-success gritter-center'
                                         });
 
-                                        var uri = resp.company_id + '?kategori_pajak_id='+resp.kategori_pajak_id+'&ketetapan_pajak='+resp.reff_pajak_id+'&grup_id='+resp.grup_id;
+                                        var uri = '?kategori_pajak_id='+resp.kategori_pajak_id+'&ketetapan_pajak='+resp.reff_pajak_id+'&grup_id='+resp.grup_id;
                                         uri = uri + '&kategori_id='+resp.kategori_id+'&subkategori_id='+resp.subkategori_id+'&subrekening_id='+resp.subrekening_id+'&rekening_id='+resp.rekening_id+'&pendapatan_id='+resp.pendapatan_id
 
                                         localStorage.setItem('label_jenis_pendapatan', resp.nama)

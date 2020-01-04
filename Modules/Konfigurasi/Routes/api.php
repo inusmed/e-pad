@@ -21,7 +21,7 @@ Route::group(['prefix' => 'v1/konfigurasi'], function () {
             Route::post('skpd/satuan-kerja/{company}/urusan/{urusan}/bidang/{bidang}', 'Satker@index');
             Route::get('skpd/satuan-kerja/{company}/urusan/{urusan}/bidang/{bidang_id}/satker/{id}', 'Satker@get');
 
-            Route::post('pegawai/{company}', 'Pegawai@index');
+            Route::post('pegawai/{company}', 'Kepegawaian@index');
         });
     });
 });

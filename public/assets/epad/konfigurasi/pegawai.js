@@ -55,25 +55,25 @@ var pegawai = function () {
                         }
                     },
                     {
-                        data: "company_id", className: "center", "width": "7%",
+                        data: "nip", className: "center", "width": "15%",
                         render: function (data, type, row, meta) {
                             return data;
                         }
                     },
                     {
-                        data: "urusan_nama", className: "left", "width": "8%",
+                        data: "nama", className: "left", "width": "30%",
                         render: function (data, type, row, meta) {
                             return data;
                         }
                     },
                     {
-                        data: "kode", className: "center", "width": "5%",
+                        data: "jabatan", className: "left", "width": "25%",
                         render: function (data, type, row, meta) {
                             return data;
                         }
                     },
                     {
-                        data: "nama", className: "left", "width": "20%",
+                        data: "userid", className: "left", "width": "10%",
                         render: function (data, type, row, meta) {
                             return data;
                         }
@@ -87,14 +87,15 @@ var pegawai = function () {
                     {
                         data: 'status', className: "center", "width": "5%", 
                         render: function (data, type, full)  {
+                            console.log(full)
                             if(status == '0')  {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat Bidang "+full['nama']+"'' onclick=bidangRequest('"+full['company_id']+"',"+full['urusan_id']+","+full['id']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <button style='cursor:pointer' data-rel='tooltip' title='Nama "+full['nama']+"'' onclick=pegawai('"+full['company_id']+"',"+full['uuid']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
                                 </div>";
                             }
                             else {
                                 return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <button style='cursor:pointer' data-rel='tooltip' title='Lihat Bidang "+full['nama']+"'' onclick=bidangRequest('"+full['company_id']+"',"+full['urusan_id']+","+full['id']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
+                                    <button style='cursor:pointer' data-rel='tooltip' title='Nama "+full['nama']+"'' onclick=pegawai('"+full['company_id']+"',"+full['uuid']+") class='btn btn-xs btn-info no-radius'><i class='ace-icon fa fa-eye'></i></button>\
                                 </div>";
                             }
                         }
@@ -102,17 +103,7 @@ var pegawai = function () {
                     {
                         data: 'status', className: "center", "width": "5%", 
                         render: function (data, type, full)  {
-                            
-                            if(full['status'] == '0')  {
-                                return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <a href='javascript:void(0)' style='cursor:pointer' data-rel='tooltip' title='Akun "+full['nama']+"' class='disabled btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
-                                </div>";
-                            }
-                            else {
-                                return "<div class='sidebar-shortcuts-large'id='sidebar-shortcuts-large'>\
-                                    <a href='"+baseUrl+"/konfigurasi/skpd/satuan-kerja/"+full['company_id']+"/"+full['urusan_id']+"/"+full['id']+"' style='cursor:pointer' data-rel='tooltip' title='Bidang "+full['nama']+"' class='btn btn-xs btn-success no-radius'><i class='ace-icon fa fa-arrow-right icon-on-right'></i></a>\
-                                </div>";
-                            }
+
                         }
                     },
                 ]
@@ -120,6 +111,11 @@ var pegawai = function () {
         },
     };
 }();
+
+function pegawai($company_id, $uuid)
+{
+
+}
 
 document.addEventListener('DOMContentLoaded', function() {
     $.ajax({

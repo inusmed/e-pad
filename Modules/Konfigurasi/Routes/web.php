@@ -16,10 +16,8 @@ Route::group(['middleware' => 'language'], function () {
         Route::group(['prefix' => 'konfigurasi', 'namespace' => 'SKPD'], function () {
             Route::get('skpd/bidang', 'Bidang@index');
             Route::get('skpd/satuan-kerja/{company_id}', 'Satker@index');
-        });
 
-        Route::group(['prefix' => 'konfigurasi'], function () {
-            Route::get('kepegawaian', 'Pegawai@index');
+            Route::get('kepegawaian', 'Kepegawaian@index');
         });
     });
 });

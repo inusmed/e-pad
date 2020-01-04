@@ -105,12 +105,13 @@
                                     </div>
                                 </div>
                                 
-                                <table id="tabelTarifUsaha" style="font-size: 12px; width: 100%;display:none;" class="table table-striped table-bordered table-hover">
+                                <table id="tabelTarifOmzet" style="font-size: 12px; width: 100%;display:none;" class="table table-striped table-bordered table-hover">
                                     <thead>
                                         <tr>
                                             <th>No</th>
                                             <th>Nama Tarif</th>
-                                            <th>Periode</th>
+                                            <th>Grup</th>
+                                            <th>Tarif</th>
                                             <th>Persen</th>
                                             <th>Keterangan</th>
                                             <th>Status</th>
